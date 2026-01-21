@@ -19,9 +19,4 @@ export default {
     online: 'Онлайн: {count}',
     lookingForPlayers: 'Ищем игроков',
   },
-  alert: {
-    titlediscordchat: 'Discord-чат',
-    contentdiscordchat:
-      'Ищите игроков для своей команды или хотите присоединиться к другим игрокам в Авалон? Используйте наш <b><a href="https://discord.gg/Xdu7ByqQtt" target="_blank">Discord-чат</a></b>!',
-  },
 };

@@ -5,12 +5,6 @@
     </template>
     {{ $t('startPanel.copyLink') }}
   </v-btn>
-  <v-btn color="info" class="mb-4" @click="onDiscordClick">
-    <template v-slot:prepend>
-      <v-icon class="social-icon mr-1" size="large" icon="fa:fa-brands fa-discord" />
-    </template>
-    {{ $t('startPanel.discord') }}
-  </v-btn>
   <v-btn v-if="isUserInGame" color="warning" @click="onJoinClick"> {{ $t('startPanel.leaveGame') }} </v-btn>
   <v-btn
     v-else-if="roomState.players.length < 10"
@@ -125,10 +119,6 @@ export default defineComponent({
     const onCopyClick = () => {
       navigator.clipboard.writeText(window.location.href);
       eventBus.emit('infoMessage', t('infoMessage.linkCopied'));
-    };
-
-    const onDiscordClick = () => {
-      window.open('https://discord.gg/DR9cEDDNdN', '_blank');
     };
 
     const updateFeatures = (newFeatures: any) => {

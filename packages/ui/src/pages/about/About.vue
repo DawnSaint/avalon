@@ -25,14 +25,6 @@
       {{ $t('about.features') }}
     </div>
 
-    <div class="socials">
-      {{ $t('about.code') }} <b><a href="https://github.com/Razdva122/avalon" target="_blank">github</a></b
-      >.
-    </div>
-    <div class="socials">
-      {{ $t('about.contact') }} <b><a href="https://discord.gg/DR9cEDDNdN" target="_blank">discord</a></b
-      >.
-    </div>
     <div
       v-if="$store.state.profile && !$store.state.profile?.knownAchievements?.includes('secret_hunter')"
       @click="redeemAvatar"

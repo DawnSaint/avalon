@@ -4,7 +4,6 @@
       <v-btn class="mr-1" density="comfortable" variant="plain" color="invert" size="large" to="/" icon>
         <v-icon class="home-icon" size="large" icon="fa:fa-solid fa-house" />
       </v-btn>
-      <Socials class="mr-4" />
       <ConnectStatus class="connect-status" />
     </div>
     <div class="header-right-container d-flex align-center mr-2">
@@ -40,7 +39,6 @@ import Menu from '@/components/header/Menu.vue';
 import ConnectStatus from '@/components/feedback/ConnectStatus.vue';
 import InfoSnackbar from '@/components/feedback/InfoSnackbar.vue';
 import Version from '@/components/feedback/Version.vue';
-import Socials from '@/components/feedback/Socials.vue';
 import SpoilerEye from '@/components/feedback/SpoilerEye.vue';
 import ThemeToggle from '@/components/feedback/ThemeToggle.vue';
 import DevPanel from '@/components/dev/DevPanel.vue';
@@ -54,7 +52,6 @@ export default defineComponent({
     ConnectStatus,
     InfoSnackbar,
     Version,
-    Socials,
     Menu,
     SpoilerEye,
     ThemeToggle,

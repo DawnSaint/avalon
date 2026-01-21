@@ -9,7 +9,6 @@ export default {
   },
   startPanel: {
     copyLink: '复制连结',
-    discord: 'Discord',
     leaveGame: '离开游戏',
     joinGame: '加入游戏',
     lockGame: '锁定游戏',

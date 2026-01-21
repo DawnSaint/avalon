@@ -9,7 +9,6 @@ export default {
   },
   startPanel: {
     copyLink: 'Copiar enlace',
-    discord: 'Discord',
     leaveGame: 'Salir del juego',
     joinGame: 'Unirse al juego',
     lockGame: 'Bloquear juego',

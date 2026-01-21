@@ -19,9 +19,4 @@ export default {
     online: 'En línea: {count}',
     lookingForPlayers: 'Buscando jugadores',
   },
-  alert: {
-    titlediscordchat: 'Chat de Discord',
-    contentdiscordchat:
-      '¿Buscas jugadores para tu equipo o quieres unirte a otros jugadores de Avalon? Utiliza nuestro <b><a href="https://discord.gg/Xdu7ByqQtt" target="_blank">chat&nbsp;de&nbsp;Discord</a></b>!',
-  },
 };

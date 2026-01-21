@@ -19,9 +19,4 @@ export default {
     online: '在线: {count}',
     lookingForPlayers: '寻找玩家',
   },
-  alert: {
-    titlediscordchat: 'Discord 聊天',
-    contentdiscordchat:
-      '想找玩家加入你的团队或者想加入其他《阿瓦隆》玩家的游戏？使用我们的 <b><a href="https://discord.gg/Xdu7ByqQtt" target="_blank">Discord&nbsp;聊天</a></b>！',
-  },
 };
