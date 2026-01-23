@@ -199,4 +199,49 @@ export class UserLayer {
     const isPassValid = await bcrypt.compare(password, user.password);
     return isPassValid;
   }
+
+  async wechatLogin(openid: string): Promise<ArgumentOfCallback<'wechatLogin'>> {
+    // 查找是否已经有该openid的用户
+    let user = await userProfileModel.findOne({ wechatOpenid: openid });
+
+    if (!user) {
+      // 如果没有，创建一个新用户
+      const randomId = Math.random().toString(36).substring(2, 15);
+      const defaultPassword = await bcrypt.hash(randomId, this.hashRounds);
+
+      const newUser = new userProfileModel({
+        id: randomId,
+        name: `微信用户${randomId.substring(0, 6)}`,
+        email: `wechat_${openid}@temp.avalon.com`,
+        login: `wx_${randomId}`,
+        password: defaultPassword,
+        wechatOpenid: openid,
+        avatar: 'servant',
+      });
+
+      try {
+        await newUser.save();
+        user = newUser;
+      } catch (err) {
+        console.error('WeChat login create user error:', err);
+        return { error: 'createUserFailed' };
+      }
+    }
+
+    const userForUi = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      login: user.login,
+      avatar: user.avatar,
+    };
+
+    const knownAchievements = await this.getUserCompletedAchievements(user.id, 'hidden');
+
+    return {
+      ...userForUi,
+      token: generateJWT(userForUi),
+      knownAchievements,
+    };
+  }
 }

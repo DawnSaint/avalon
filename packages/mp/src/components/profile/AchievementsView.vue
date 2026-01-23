@@ -1,0 +1,242 @@
+<template>
+  <view class="achievements-view">
+    <!-- 加载中 -->
+    <view v-if="loading" class="loading-container">
+      <text class="loading-text">加载中...</text>
+    </view>
+
+    <!-- 成就内容 -->
+    <template v-else>
+      <!-- 成就总览 -->
+      <view class="achievement-summary">
+        <view class="summary-header">
+          <text class="summary-title">成就进度</text>
+        </view>
+        <view class="summary-content">
+          <view class="summary-progress">
+            <view class="progress-bar">
+              <view
+                class="progress-fill"
+                :style="{ width: completionPercentage + '%' }"
+              ></view>
+            </view>
+          </view>
+          <view class="summary-stats">
+            <text class="stats-text">
+              已完成 {{ completedCount }} / {{ totalCount }} 个成就
+            </text>
+            <text class="stats-percentage">{{ completionPercentage }}%</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 公开成就 -->
+      <view class="achievement-section">
+        <text class="section-title">公开成就</text>
+        <view class="achievement-list">
+          <AchievementCard
+            v-for="achievement in openAchievements"
+            :key="achievement.id"
+            :achievement="achievement"
+          />
+        </view>
+      </view>
+
+      <!-- 隐藏成就 -->
+      <view v-if="hiddenAchievements.length > 0" class="achievement-section">
+        <text class="section-title">隐藏成就</text>
+        <view class="achievement-list">
+          <AchievementCard
+            v-for="achievement in hiddenAchievements"
+            :key="achievement.id"
+            :achievement="achievement"
+            :isHidden="true"
+          />
+        </view>
+      </view>
+    </template>
+  </view>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
+import { useMainStore } from '@/store';
+import { socket } from '@/api/socket';
+import AchievementCard from '@/components/achievements/AchievementCard.vue';
+
+interface Achievement {
+  id: string;
+  type: 'open' | 'hidden';
+  completed: boolean;
+  progress: {
+    currentValue: number;
+    maxValue: number;
+  };
+  metadata?: {
+    roles?: string[];
+    playerCounts?: number[];
+  };
+  state?: Record<string, boolean>;
+}
+
+const store = useMainStore();
+const loading = ref(true);
+const achievements = ref<Achievement[]>([]);
+
+// 分类成就
+const openAchievements = computed(() => {
+  return achievements.value.filter(a => a.type === 'open');
+});
+
+const hiddenAchievements = computed(() => {
+  return achievements.value.filter(a => a.type === 'hidden');
+});
+
+// 统计数据
+const totalCount = computed(() => achievements.value.length);
+const completedCount = computed(() => achievements.value.filter(a => a.completed).length);
+const completionPercentage = computed(() => {
+  if (totalCount.value === 0) return 0;
+  return Math.round((completedCount.value / totalCount.value) * 100);
+});
+
+// 获取成就数据
+const fetchAchievements = async () => {
+  if (!store.profile) return;
+
+  try {
+    loading.value = true;
+
+    const [achievementsResponse, userAchievementsResponse] = await Promise.all([
+      socket.emitWithAck('getAllAchievements'),
+      socket.emitWithAck('getUserAchievements', store.profile.id)
+    ]);
+
+    if (Array.isArray(achievementsResponse) && Array.isArray(userAchievementsResponse)) {
+      // 合并成就数据
+      achievements.value = achievementsResponse.map(achievement => {
+        const userAchievement = userAchievementsResponse.find(
+          (ua: any) => ua.id === achievement.id
+        );
+
+        return {
+          ...achievement,
+          completed: userAchievement?.completed || false,
+          progress: userAchievement?.progress || { currentValue: 0, maxValue: 0 },
+          state: userAchievement?.state || {}
+        };
+      });
+    }
+  } catch (error) {
+    console.error('Failed to fetch achievements:', error);
+    uni.showToast({
+      title: '获取成就失败',
+      icon: 'none'
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(() => {
+  fetchAchievements();
+});
+</script>
+
+<style scoped lang="scss">
+@import '@/styles/theme.scss';
+
+.achievements-view {
+  min-height: 60vh;
+  padding: $spacing-lg 0;
+}
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.loading-text {
+  font-size: $font-lg;
+  color: $text-disabled;
+}
+
+.achievement-summary {
+  background-color: $bg-card;
+  border-radius: $radius-large;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-xl;
+  @include shadow-card;
+}
+
+.summary-header {
+  margin-bottom: $spacing-md;
+}
+
+.summary-title {
+  font-size: $font-xl;
+  font-weight: bold;
+  color: $text-primary;
+}
+
+.summary-content {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.summary-progress {
+  width: 100%;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 12rpx;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: $radius-small;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, $primary 0%, lighten($primary, 15%) 100%);
+  transition: width $transition-normal;
+}
+
+.summary-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stats-text {
+  font-size: $font-md;
+  color: $text-secondary;
+}
+
+.stats-percentage {
+  font-size: $font-xl;
+  font-weight: bold;
+  color: $primary;
+}
+
+.achievement-section {
+  margin-bottom: $spacing-xl;
+}
+
+.section-title {
+  display: block;
+  font-size: $font-lg;
+  font-weight: bold;
+  color: $text-primary;
+  margin-bottom: $spacing-md;
+}
+
+.achievement-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+</style>

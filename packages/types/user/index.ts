@@ -62,6 +62,9 @@ export class UserProfile extends UserForUI {
 
   @prop({ required: true })
   public password!: string;
+
+  @prop({ unique: true, sparse: true })
+  public wechatOpenid?: string;
 }
 
 export class UserFeatures {

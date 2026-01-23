@@ -1,0 +1,155 @@
+<template>
+  <view class="game-result-display" :class="`winner-${result.winner}`">
+    <view class="result-header">
+      <text class="result-title">游戏结束</text>
+      <view class="winner-content">
+        <image
+          class="winner-icon"
+          :src="winnerIcon"
+          mode="aspectFit"
+        />
+        <text class="winner-text">{{ winnerText }} 胜利!</text>
+      </view>
+      <text v-if="result.reason" class="reason-text">{{ reasonText }}</text>
+    </view>
+
+    <view class="roles-reveal">
+      <text class="reveal-title">角色公开</text>
+      <view class="roles-list">
+        <RoleRevealCard
+          v-for="player in players"
+          :key="player.id"
+          :player="player"
+        />
+      </view>
+    </view>
+  </view>
+</template>
+
+<script setup lang="ts">
+import { computed } from 'vue';
+import type { VisualGameState, TGameResult } from '@/types';
+import RoleRevealCard from './RoleRevealCard.vue';
+
+interface Props {
+  game: VisualGameState;
+}
+
+const props = defineProps<Props>();
+
+const result = computed((): TGameResult => {
+  return props.game.result || { winner: 'good', reason: '' };
+});
+
+const winnerText = computed(() => {
+  return result.value.winner === 'good' ? '善良方' : '邪恶方';
+});
+
+const winnerIcon = computed(() => {
+  return result.value.winner === 'good'
+    ? '/static/images/core/blue_team_no_background.webp'
+    : '/static/images/core/red_team_no_background.webp';
+});
+
+const reasonText = computed(() => {
+  const reasonMap: Record<string, string> = {
+    'merlinAssassinated': '梅林被刺杀',
+    'missionsFailed': '任务失败次数过多',
+    'missionsSucceeded': '任务成功次数过多',
+    'votesFailed': '投票失败5次',
+    'loverAssassinated': '情侣被刺杀'
+  };
+  return reasonMap[result.value.reason || ''] || result.value.reason;
+});
+
+const players = computed(() => {
+  return props.game.players;
+});
+</script>
+
+<style scoped lang="scss">
+@import '@/styles/theme.scss';
+
+.game-result-display {
+  min-height: 100vh;
+  padding: $spacing-xl $spacing-md;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: $bg-page;
+  transition: background-color $transition-normal;
+}
+
+.game-result-display.winner-good {
+  background-color: rgba($loyalty-good, 0.05);
+}
+
+.game-result-display.winner-evil {
+  background-color: rgba($loyalty-evil, 0.05);
+}
+
+.result-header {
+  text-align: center;
+  margin-bottom: $spacing-xl;
+}
+
+.result-title {
+  display: block;
+  font-size: $font-xxl;
+  font-weight: bold;
+  color: $text-primary;
+  margin-bottom: $spacing-md;
+}
+
+.winner-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-md;
+  margin-bottom: $spacing-sm;
+}
+
+.winner-icon {
+  width: 80rpx;
+  height: 80rpx;
+}
+
+.winner-text {
+  font-size: $font-xl;
+  font-weight: bold;
+}
+
+.winner-good .winner-text {
+  color: $loyalty-good;
+}
+
+.winner-evil .winner-text {
+  color: $loyalty-evil;
+}
+
+.reason-text {
+  display: block;
+  font-size: $font-md;
+  color: $text-secondary;
+}
+
+.roles-reveal {
+  width: 100%;
+  max-width: 700rpx;
+}
+
+.reveal-title {
+  display: block;
+  font-size: $font-lg;
+  font-weight: bold;
+  color: $text-primary;
+  margin-bottom: $spacing-lg;
+  text-align: center;
+}
+
+.roles-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+</style>

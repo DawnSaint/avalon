@@ -74,6 +74,7 @@ export interface ClientToServerUserEvents {
   ) => void;
   updateUserAvatar: (avatarID: string, callback: (result: true | IUpdateAvatarError) => void) => void;
   login: (loginOrEmail: string, password: string, callback: (user: UserWithToken | ILoginError) => void) => void;
+  wechatLogin: (code: string, callback: (user: UserWithToken | { error: string }) => void) => void;
   getUserAvatars: (callback: (avatars: IAvatarInfo[]) => void) => void;
   getMyProfile: (callback: (user: UserForUI) => void) => void;
   revealEasterEgg: () => void;

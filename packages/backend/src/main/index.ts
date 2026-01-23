@@ -280,6 +280,19 @@ export class Manager {
         cb(userForUI);
       });
 
+      socket.on('wechatLogin', async (code, cb) => {
+        const { getWechatOpenid } = await import('@/user/wechat');
+        const openid = await getWechatOpenid(code);
+
+        if (!openid) {
+          cb({ error: 'wechatAuthFailed' });
+          return;
+        }
+
+        const userForUI = await dbManager.wechatLogin(openid);
+        cb(userForUI);
+      });
+
       socket.on('getUserProfile', async (id, cb) => {
         const publicUser = await dbManager.getPublicUserProfile(id);
 
