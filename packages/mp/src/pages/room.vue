@@ -52,9 +52,57 @@
           <MissionBoard :missions="gameState.missionState" />
 
           <!-- 动态游戏面板 -->
-          <component
-            :is="getCurrentGamePanel()"
-            v-if="getCurrentGamePanel()"
+          <!-- 游戏结束面板 -->
+          <GameResultDisplay
+            v-if="currentPanelType === 'result'"
+            :game="gameState"
+            :current-player-id="store.profile?.id || ''"
+            :selected-players="selectedPlayers"
+            @send-team="handleSendTeam"
+            @vote="handleVote"
+            @action="handleMissionAction"
+            @assassinate="handleAssassinate"
+          />
+
+          <!-- 选择队伍面板 -->
+          <TeamSelectionPanel
+            v-else-if="currentPanelType === 'teamSelection'"
+            :game="gameState"
+            :current-player-id="store.profile?.id || ''"
+            :selected-players="selectedPlayers"
+            @send-team="handleSendTeam"
+            @vote="handleVote"
+            @action="handleMissionAction"
+            @assassinate="handleAssassinate"
+          />
+
+          <!-- 投票面板 -->
+          <VotingPanel
+            v-else-if="currentPanelType === 'voting'"
+            :game="gameState"
+            :current-player-id="store.profile?.id || ''"
+            :selected-players="selectedPlayers"
+            @send-team="handleSendTeam"
+            @vote="handleVote"
+            @action="handleMissionAction"
+            @assassinate="handleAssassinate"
+          />
+
+          <!-- 任务执行面板 -->
+          <MissionActionPanel
+            v-else-if="currentPanelType === 'missionAction'"
+            :game="gameState"
+            :current-player-id="store.profile?.id || ''"
+            :selected-players="selectedPlayers"
+            @send-team="handleSendTeam"
+            @vote="handleVote"
+            @action="handleMissionAction"
+            @assassinate="handleAssassinate"
+          />
+
+          <!-- 刺杀面板 -->
+          <AssassinationPanel
+            v-else-if="currentPanelType === 'assassination'"
             :game="gameState"
             :current-player-id="store.profile?.id || ''"
             :selected-players="selectedPlayers"
@@ -203,8 +251,8 @@ const canSelectPlayer = computed(() => {
   return false;
 });
 
-// 根据游戏阶段返回当前应该显示的面板组件
-const getCurrentGamePanel = () => {
+// 根据游戏阶段返回当前应该显示的面板类型
+const currentPanelType = computed(() => {
   if (!gameState.value || !store.profile) return null;
 
   const stage = gameState.value.stage;
@@ -212,7 +260,7 @@ const getCurrentGamePanel = () => {
 
   // 游戏结束
   if (stage === 'end') {
-    return GameResultDisplay;
+    return 'result';
   }
 
   // 只有需要行动的玩家才显示面板
@@ -220,22 +268,22 @@ const getCurrentGamePanel = () => {
     return null;
   }
 
-  // 根据阶段返回对应面板
+  // 根据阶段返回对应面板类型
   switch (stage) {
     case 'selectTeam':
       // 只有领袖才显示选择队伍面板
       if (currentPlayer.features.isLeader) {
-        return TeamSelectionPanel;
+        return 'teamSelection';
       }
       return null;
 
     case 'votingForTeam':
-      return VotingPanel;
+      return 'voting';
 
     case 'onMission':
       // 只有在任务中的玩家才显示
       if (currentPlayer.features.isSent) {
-        return MissionActionPanel;
+        return 'missionAction';
       }
       return null;
 
@@ -243,14 +291,14 @@ const getCurrentGamePanel = () => {
       // 只显示给刺客
       // 假设刺客角色的判断逻辑
       if (currentPlayer.role === 'assassin' || (currentPlayer.loyalty === 'evil' && currentPlayer.features.waitForAction)) {
-        return AssassinationPanel;
+        return 'assassination';
       }
       return null;
 
     default:
       return null;
   }
-};
+});
 
 // 页面加载
 onLoad((options: any) => {
