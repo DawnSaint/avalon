@@ -10,7 +10,7 @@
           <text class="expand-icon" :class="{ expanded: expandedSections.intro }">›</text>
         </view>
 
-        <view v-show="expandedSections.intro" class="section-body">
+        <view v-if="expandedSections.intro" class="section-body">
           <text class="section-content">
             阿瓦隆（The Resistance:
             Avalon）是一款多人社交推理游戏，玩家分为善良方和邪恶方两个阵营。善良方需要通过完成任务来获胜，而邪恶方则试图破坏任务。游戏的核心在于信息的不对称和身份的隐藏，需要玩家通过观察、推理和交流来找出队友或敌人。
@@ -25,18 +25,16 @@
           <text class="expand-icon" :class="{ expanded: expandedSections.camps }">›</text>
         </view>
 
-        <view v-show="expandedSections.camps" class="section-body">
-
+        <view v-if="expandedSections.camps" class="section-body">
           <!-- 阵营标识展示 -->
           <view class="camp-badges">
             <view class="camp-badge-item">
-              <image class="camp-badge-icon" src="/static/images/core/blue_team_no_background.webp" mode="aspectFit" />
+              <image class="camp-badge-icon" :src="getImage('core/blue_team_no_background.webp')" mode="aspectFit" />
               <text class="camp-badge-label">善良方（蓝方）</text>
               <text class="condition-item">胜利条件：3个任务成功且梅林或恋人没有被刺杀</text>
-
             </view>
             <view class="camp-badge-item">
-              <image class="camp-badge-icon" src="/static/images/core/red_team_no_background.webp" mode="aspectFit" />
+              <image class="camp-badge-icon" :src="getImage('core/red_team_no_background.webp')" mode="aspectFit" />
               <text class="camp-badge-label">邪恶方（红方）</text>
               <text class="condition-item">胜利条件：3个任务失败 / 连续 5 次流局 / 刺杀梅林或恋人</text>
             </view>
@@ -59,7 +57,6 @@
             </view>
           </view>
 
-
           <!-- 派西维尔 -->
 
           <view class="role-detail">
@@ -72,7 +69,6 @@
               <text class="role-description">
                 能够看到梅林和莫甘娜，但不知道谁是真正的梅林，需要识别真假并保护梅林不被红方发现。
               </text>
-
             </view>
           </view>
           <!-- 忠臣 -->
@@ -84,13 +80,9 @@
                 <text class="role-title">忠臣 (Servant)</text>
                 <text class="role-loyalty good-tag">善良</text>
               </view>
-              <text class="role-description">
-                普通蓝方角色，不知道任何特殊信息，需要通过观察和推理来辨别善恶。
-              </text>
+              <text class="role-description"> 普通蓝方角色，不知道任何特殊信息，需要通过观察和推理来辨别善恶。 </text>
             </view>
           </view>
-
-
 
           <!-- 邪恶方角色 -->
 
@@ -149,10 +141,8 @@
               </text>
             </view>
           </view>
-
         </view>
       </view>
-
 
       <!-- 游戏流程 -->
       <view class="wiki-section">
@@ -161,11 +151,12 @@
           <text class="expand-icon" :class="{ expanded: expandedSections.flow }">›</text>
         </view>
 
-        <view v-show="expandedSections.flow" class="section-body">
-
+        <view v-if="expandedSections.flow" class="section-body">
           <view class="flow-step">
             <text class="step-number">1. 身份确认</text>
-            <text class="step-content">游戏开始时，每位玩家会收到自己的角色和阵营信息。根据角色不同，可能会知道其他玩家的身份。</text>
+            <text class="step-content"
+              >游戏开始时，每位玩家会收到自己的角色和阵营信息。根据角色不同，可能会知道其他玩家的身份。</text
+            >
 
             <!-- 角色配置表格 -->
             <view class="role-config-table">
@@ -217,23 +208,29 @@
 
           <view class="flow-step">
             <text class="step-number">2. 选择队伍</text>
-            <text class="step-content">由当前领袖选择若干名玩家组成任务队伍。需要选择的人数根据任务和玩家总数决定。</text>
+            <text class="step-content"
+              >由当前领袖选择若干名玩家组成任务队伍。需要选择的人数根据任务和玩家总数决定。</text
+            >
 
             <!-- 队长标识展示 -->
             <view class="leader-badge">
-              <image class="leader-crown-icon" src="/static/images/core/crown.webp" mode="aspectFit" />
+              <image class="leader-crown-icon" :src="getImage('core/crown.webp')" mode="aspectFit" />
               <text class="leader-badge-label">当前队长（领袖）标识</text>
             </view>
           </view>
 
           <view class="flow-step">
             <text class="step-number">3. 投票派遣</text>
-            <text class="step-content">所有玩家对提议的队伍进行投票，赞成或反对。如果多数赞成则派遣该队伍，否则进入下一轮选择。连续5次投票失败则邪恶方直接获胜。</text>
+            <text class="step-content"
+              >所有玩家对提议的队伍进行投票，赞成或反对。如果多数赞成则派遣该队伍，否则进入下一轮选择。连续5次投票失败则邪恶方直接获胜。</text
+            >
           </view>
 
           <view class="flow-step">
             <text class="step-number">4. 执行任务</text>
-            <text class="step-content">被派遣的玩家秘密选择任务成功或失败。善良方只能选择成功，邪恶方可以选择成功或失败。如果有邪恶方投了失败，该任务就会失败。</text>
+            <text class="step-content"
+              >被派遣的玩家秘密选择任务成功或失败。善良方只能选择成功，邪恶方可以选择成功或失败。如果有邪恶方投了失败，该任务就会失败。</text
+            >
             <view class="mission-table">
               <view class="table-header">
                 <text class="table-cell">玩家数</text>
@@ -273,12 +270,16 @@
 
           <view class="flow-step">
             <text class="step-number">5. 公布结果</text>
-            <text class="step-content">公布任务结果（成功或失败），以及失败票数。游戏需要完成5个任务，善良方需要3个任务成功才能获胜。</text>
+            <text class="step-content"
+              >公布任务结果（成功或失败），以及失败票数。游戏需要完成5个任务，善良方需要3个任务成功才能获胜。</text
+            >
           </view>
 
           <view class="flow-step">
             <text class="step-number">6. 刺客阶段</text>
-            <text class="step-content">如果善良方完成了3个任务，刺客有一次机会刺杀一名玩家。如果刺中了梅林，邪恶方获胜；否则善良方获胜。</text>
+            <text class="step-content"
+              >如果善良方完成了3个任务，刺客有一次机会刺杀一名玩家。如果刺中了梅林，邪恶方获胜；否则善良方获胜。</text
+            >
           </view>
         </view>
       </view>
@@ -290,8 +291,7 @@
           <text class="expand-icon" :class="{ expanded: expandedSections.expansionRoles }">›</text>
         </view>
 
-        <view v-show="expandedSections.expansionRoles" class="section-body">
-
+        <view v-if="expandedSections.expansionRoles" class="section-body">
           <!-- 善良兰斯洛特 -->
           <view class="role-detail good">
             <image class="role-avatar" :src="getRoleImage('good_lancelot')" mode="aspectFit" />
@@ -431,7 +431,6 @@
               </view>
             </view>
           </view>
-
         </view>
       </view>
 
@@ -442,10 +441,9 @@
           <text class="expand-icon" :class="{ expanded: expandedSections.expansionModes }">›</text>
         </view>
 
-        <view v-show="expandedSections.expansionModes" class="section-body">
-
+        <view v-if="expandedSections.expansionModes" class="section-body">
           <view class="addon-detail">
-            <image class="addon-image" src="/static/images/features/lady_of_lake.webp" mode="aspectFit" />
+            <image class="addon-image" :src="getImage('features/lady_of_lake.webp')" mode="aspectFit" />
             <view class="addon-content">
               <text class="addon-name">湖中女神 (Lady of the Lake)</text>
               <text class="addon-desc">
@@ -455,7 +453,7 @@
           </view>
 
           <view class="addon-detail">
-            <image class="addon-image" src="/static/images/features/excalibur.webp" mode="aspectFit" />
+            <image class="addon-image" :src="getImage('features/excalibur.webp')" mode="aspectFit" />
             <view class="addon-content">
               <text class="addon-name">圣剑 (Excalibur)</text>
               <text class="addon-desc">
@@ -465,7 +463,7 @@
           </view>
 
           <view class="addon-detail">
-            <image class="addon-image" src="/static/images/features/lady_of_sea.webp" mode="aspectFit" />
+            <image class="addon-image" :src="getImage('features/lady_of_sea.webp')" mode="aspectFit" />
             <view class="addon-content">
               <text class="addon-name">海之女神 (Lady of the Sea)</text>
               <text class="addon-desc">
@@ -475,7 +473,7 @@
           </view>
 
           <view class="addon-detail">
-            <image class="addon-image" src="/static/images/features/plot_cards.webp" mode="aspectFit" />
+            <image class="addon-image" :src="getImage('features/plot_cards.webp')" mode="aspectFit" />
             <view class="addon-content">
               <text class="addon-name">剧情卡 (Plot Cards)</text>
               <text class="addon-desc">
@@ -483,10 +481,8 @@
               </text>
             </view>
           </view>
-
         </view>
       </view>
-
     </view>
 
     <!-- 底部导航栏 -->
@@ -497,7 +493,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import TabBar from '@/components/TabBar.vue';
-import { getRoleImage } from '@/utils/roleImages';
+import { getRoleImage, getImage } from '@/utils/roleImages';
 
 // 折叠面板状态管理
 const expandedSections = ref<Record<string, boolean>>({
@@ -505,7 +501,7 @@ const expandedSections = ref<Record<string, boolean>>({
   camps: false,
   flow: false,
   expansionRoles: false,
-  expansionModes: false
+  expansionModes: false,
 });
 
 // 切换section展开/收起
@@ -533,7 +529,7 @@ const toggleSection = (key: string) => {
     transform: translate(-50%, -50%);
     width: 600rpx;
     height: 600rpx;
-    background-image: url('/static/images/core/board.webp');
+    background-image: url('https://storage.yandexcloud.net/avalon-game/images/core/board.webp');
     background-size: 100%;
     background-position: center;
     background-repeat: no-repeat;
@@ -727,7 +723,6 @@ const toggleSection = (key: string) => {
   line-height: 1.8;
   display: block;
 }
-
 
 .condition-title {
   font-size: $font-md;

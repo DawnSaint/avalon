@@ -66,8 +66,12 @@ export const roleImages: Record<RoleImageKey, string> = {
  * @param role 角色名称
  * @returns 图片路径
  */
-export function getRoleImage(role: RoleImageKey): string {
-  return roleImages[role] || roleImages.mystery;
+export function getRoleImage(role: string): string {
+  return `https://storage.yandexcloud.net/avalon-game/images/roles/anime/${role}.webp`;
+}
+
+export function getImage(path: string): string {
+  return `https://storage.yandexcloud.net/avalon-game/images/${path}`;
 }
 
 /**
