@@ -12,7 +12,7 @@
         <!-- 角色设置 -->
         <view class="settings-section">
           <view class="section-header">
-            <text class="section-title">🎭 角色配置</text>
+            <text class="section-title">角色配置</text>
             <text class="section-hint">选择游戏中包含的角色</text>
           </view>
 
@@ -27,7 +27,6 @@
                 :class="{ active: localOptions.roles[role.key] }"
                 @tap="toggleRole(role.key)"
               >
-                <text class="option-icon">{{ role.icon }}</text>
                 <text class="option-name">{{ role.name }}</text>
               </view>
             </view>
@@ -42,58 +41,12 @@
                 :class="{ active: localOptions.roles[role.key] }"
                 @tap="toggleRole(role.key)"
               >
-                <text class="option-icon">{{ role.icon }}</text>
                 <text class="option-name">{{ role.name }}</text>
               </view>
             </view>
           </view>
         </view>
 
-        <!-- 扩展内容 -->
-        <view class="settings-section">
-          <view class="section-header">
-            <text class="section-title">🎲 扩展内容</text>
-            <text class="section-hint">添加额外的游戏机制</text>
-          </view>
-
-          <view class="options-list">
-            <view
-              v-for="addon in addons"
-              :key="addon.key"
-              class="addon-item"
-              :class="{ active: localOptions.addons[addon.key] }"
-              @tap="toggleAddon(addon.key)"
-            >
-              <view class="addon-info">
-                <text class="addon-icon">{{ addon.icon }}</text>
-                <view class="addon-text">
-                  <text class="addon-name">{{ addon.name }}</text>
-                  <text class="addon-desc">{{ addon.desc }}</text>
-                </view>
-              </view>
-              <view class="addon-toggle">
-                <text v-if="localOptions.addons[addon.key]">✓</text>
-              </view>
-            </view>
-          </view>
-        </view>
-
-        <!-- 其他功能 -->
-        <view class="settings-section">
-          <view class="section-header">
-            <text class="section-title">⚙️ 其他设置</text>
-          </view>
-
-          <view class="feature-item" @tap="toggleFeature('lookingForPlayers')">
-            <view class="feature-info">
-              <text class="feature-name">寻找玩家</text>
-              <text class="feature-desc">在大厅中标记为"寻找玩家"</text>
-            </view>
-            <view class="feature-toggle" :class="{ active: localOptions.features?.lookingForPlayers }">
-              <view class="toggle-dot"></view>
-            </view>
-          </view>
-        </view>
       </scroll-view>
 
       <view class="settings-footer">
@@ -138,20 +91,20 @@ watch(() => props.options, (newOptions) => {
 
 // 角色配置
 const goodRoles = [
-  { key: 'merlin', name: '梅林', icon: '🧙' },
-  { key: 'percival', name: '派西维尔', icon: '🛡️' },
-  { key: 'guinevere', name: '桂妮薇儿', icon: '👸' },
-  { key: 'cleric', name: '牧师', icon: '⛪' },
-  { key: 'revealer', name: '揭示者', icon: '🔍' }
+  { key: 'merlin', name: '梅林' },
+  { key: 'percival', name: '派西维尔' },
+  { key: 'guinevere', name: '桂妮薇儿' },
+  { key: 'cleric', name: '牧师' },
+  { key: 'revealer', name: '揭示者' }
 ];
 
 const evilRoles = [
-  { key: 'morgana', name: '莫甘娜', icon: '🧙‍♀️' },
-  { key: 'mordred', name: '莫德雷德', icon: '⚔️' },
-  { key: 'oberon', name: '奥伯伦', icon: '👤' },
-  { key: 'witch', name: '女巫', icon: '🔮' },
-  { key: 'brute', name: '蛮族', icon: '💪' },
-  { key: 'lunatic', name: '疯子', icon: '🤪' }
+  { key: 'morgana', name: '莫甘娜' },
+  { key: 'mordred', name: '莫德雷德' },
+  { key: 'oberon', name: '奥伯伦' },
+  { key: 'witch', name: '女巫' },
+  { key: 'brute', name: '蛮族' },
+  { key: 'lunatic', name: '疯子' }
 ];
 
 // 扩展配置
@@ -159,25 +112,21 @@ const addons = [
   {
     key: 'lady_of_lake',
     name: '湖中女神',
-    icon: '🌊',
     desc: '可以查看其他玩家的阵营'
   },
   {
     key: 'excalibur',
     name: '圣剑',
-    icon: '⚔️',
     desc: '领袖可以使用圣剑强制任务成功'
   },
   {
     key: 'lady_of_sea',
     name: '海之女神',
-    icon: '🌊',
     desc: '湖中女神的变体版本'
   },
   {
     key: 'plot_cards',
     name: '阴谋卡牌',
-    icon: '🃏',
     desc: '增加特殊能力卡牌'
   }
 ];
@@ -187,18 +136,6 @@ const toggleRole = (roleKey: keyof GameOptionsRoles) => {
   localOptions.value.roles[roleKey] = !localOptions.value.roles[roleKey];
 };
 
-// 切换扩展
-const toggleAddon = (addonKey: keyof GameOptionsAddons) => {
-  localOptions.value.addons[addonKey] = !localOptions.value.addons[addonKey];
-};
-
-// 切换功能
-const toggleFeature = (featureKey: string) => {
-  if (!localOptions.value.features) {
-    localOptions.value.features = {};
-  }
-  localOptions.value.features[featureKey] = !localOptions.value.features[featureKey];
-};
 
 // 关闭
 const handleClose = () => {

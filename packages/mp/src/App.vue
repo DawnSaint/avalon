@@ -25,8 +25,9 @@ onHide(() => {
 
 <style lang="scss">
 /* 全局样式 */
-page {
-  background-color: #f5f5f5;
+uni-page {
+  background-color: #CFD8DC;
+  position: fixed;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
     'Droid Sans', 'Helvetica Neue', sans-serif;
 }

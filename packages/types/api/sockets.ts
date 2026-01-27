@@ -22,7 +22,7 @@ import type { TAssassinateType } from '../game/addons';
 
 import type { TRoomsList, TMessage } from '../room';
 import { TTotalWinrateStats, RoleRating, Achievement, UserAchievement, AchievementStats } from '../stats';
-import { UserForUI, UserProfile, IAvatarInfo, PublicUserProfile, UserWithToken } from '../user';
+import { UserForUI, UserProfile, IAvatarInfo, PublicUserProfile, UserWithToken, MPUserForUI, MPUserWithToken } from '../user';
 
 export interface AchievementResponse {
   success: boolean;
@@ -80,7 +80,23 @@ export interface ClientToServerUserEvents {
   revealEasterEgg: () => void;
 }
 
-export interface ClientToServerEvents extends ClientToServerUserEvents, TrueSkillSocketEvents {
+export interface ClientToServerMPUserEvents {
+  mpWechatLogin: (
+    code: string,
+    userInfo: { nickname?: string; avatarUrl?: string; unionid?: string },
+    callback: (user: MPUserWithToken | { error: string }) => void
+  ) => void;
+
+  getMPUserProfile: (id: string, callback: (user: MPUserForUI | null) => void) => void;
+  updateMPUserName: (name: string) => void;
+  updateMPUserAvatar: (avatarID: string, callback: (result: boolean) => void) => void;
+  getMPMyProfile: (callback: (user: MPUserForUI | null) => void) => void;
+
+  // 开发环境专用
+  devMPLogin: (callback: (user: MPUserWithToken | { error: string }) => void) => void;
+}
+
+export interface ClientToServerEvents extends ClientToServerUserEvents, ClientToServerMPUserEvents, TrueSkillSocketEvents {
   getTotalStats: (callback: (stats: TTotalWinrateStats) => void) => void;
   getPlayerGames: (uuid: string, callback: (games: VisualGameState[]) => void) => void;
   getRoomsList: (callback: (list: TRoomsList) => void) => void;
@@ -164,4 +180,8 @@ export interface ClientToServerEvents extends ClientToServerUserEvents, TrueSkil
 
 export type Server = SuperServer<ClientToServerEvents, ServerToClientEvents>;
 export type Socket = SuperSocket<ServerToClientEvents, ClientToServerEvents>;
-export type ServerSocket = SuperServerSocket<ClientToServerEvents, ServerToClientEvents>;
+
+// Extend ServerSocket to include userID property
+export interface ServerSocket extends SuperServerSocket<ClientToServerEvents, ServerToClientEvents> {
+  userID?: string;
+}

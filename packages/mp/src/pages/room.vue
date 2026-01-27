@@ -10,38 +10,43 @@
 
     <!-- 正常房间视图 -->
     <view v-else class="room-content">
-      <!-- 房间信息 -->
-      <view class="room-info">
-        <text class="room-id">房间 ID: {{ roomUuid }}</text>
-        <text class="room-stage">状态: {{ getRoomStageText(roomState?.stage) }}</text>
+      <!-- 顶部栏 -->
+      <view class="top-bar">
+        <button class="top-bar-btn" @click="handleLeaveRoom">
+          <text class="top-bar-text">离开</text>
+        </button>
+        <button class="top-bar-btn" open-type="share" @click="handleShareRoom">
+          <text class="top-bar-text">分享</text>
+        </button>
+
       </view>
 
       <!-- 游戏棋盘区域 -->
       <view v-if="roomState" class="board-area">
         <!-- 游戏棋盘 -->
-        <view class="board-wrapper">
-          <Board
-            :players="roomState.stage === 'started' ? gamePlayers : roomState.players"
-            :room-stage="roomState.stage"
-            :display-player-index="roomState.stage === 'started'"
-            :game-result="gameResult"
-            :selected-players="selectedPlayers"
-            :can-select-player="canSelectPlayer"
-            @player-click="handlePlayerClick"
-          >
-            <template #center-content>
-              <!-- 等待开始时的中心内容 -->
-              <view v-if="roomState.stage === 'created' || roomState.stage === 'locked'" class="center-waiting">
-                <text class="waiting-title">等待玩家</text>
-                <text class="player-count-text">{{ roomState.players.length }}/10</text>
-              </view>
-              <!-- 游戏中的中心内容 -->
-              <view v-else-if="roomState.stage === 'started'" class="center-gaming">
-                <text class="game-stage-text">游戏进行中</text>
-              </view>
-            </template>
-          </Board>
-        </view>
+
+        <Board
+          :players="roomState.stage === 'started' ? gamePlayers : roomState.players"
+          :room-stage="roomState.stage"
+          :display-player-index="roomState.stage === 'started'"
+          :game-result="gameResult"
+          :selected-players="selectedPlayers"
+          :can-select-player="canSelectPlayer"
+          @player-click="handlePlayerClick"
+        >
+          <template v-slot:host-panel>
+            <view v-if="isRoomLeader" class="board-actions">
+              <button
+                v-if="roomState.stage === 'created' || roomState.stage === 'locked'"
+                class="host-btn"
+                @click="handleStartGame"
+              >
+                <text class="host-text">开始游戏</text>
+              </button>
+            </view>
+          </template>
+        </Board>
+
 
         <!-- 游戏组件区域（游戏进行中） -->
         <view v-if="roomState.stage === 'started' && gameState" class="game-components">
@@ -130,33 +135,6 @@
           </view>
         </view>
 
-        <!-- 操作按钮（固定在底部） -->
-        <view class="actions-section">
-          <!-- 房主菜单 -->
-          <view v-if="isRoomLeader" class="host-actions">
-            <HostPanel
-              :room-uuid="roomUuid"
-              :room-stage="roomState.stage"
-              @open-settings="showGameSettings = true"
-              @share="handleShareRoom"
-            />
-          </view>
-
-          <!-- 开始游戏按钮 -->
-          <button
-            v-if="isRoomLeader && (roomState.stage === 'created' || roomState.stage === 'locked')"
-            class="primary-btn"
-            @click="handleStartGame"
-            :disabled="roomState.players.length < 5"
-          >
-            {{ roomState.players.length < 5 ? '至少需要5名玩家' : '开始游戏' }}
-          </button>
-
-          <!-- 离开房间按钮 -->
-          <button class="secondary-btn" @click="handleBackToLobby">
-            {{ roomState.stage === 'started' ? '观战模式' : '离开房间' }}
-          </button>
-        </view>
       </view>
 
       <!-- 游戏设置弹窗 -->
@@ -183,7 +161,6 @@ import { useMainStore } from '@/store';
 import { socket } from '@/api/socket';
 import type { TRoomState, ISocketError, VisualGameState, TVoteOption, TMissionResult } from '@/types';
 import Board from '@/components/board/Board.vue';
-import HostPanel from '@/components/room/HostPanel.vue';
 import GameSettings from '@/components/room/GameSettings.vue';
 // 游戏组件
 import GameStateDisplay from '@/components/game/GameStateDisplay.vue';
@@ -355,7 +332,9 @@ const handleDestroyRoom = (gameUUID: string) => {
       duration: 2000
     });
     setTimeout(() => {
-      uni.navigateBack();
+      uni.navigateTo({
+        url: '/pages/profile'
+      });
     }, 2000);
   }
 };
@@ -385,7 +364,17 @@ onUnload(() => {
 
 // 开始游戏
 const handleStartGame = () => {
-  if (!roomState.value || roomState.value.players.length < 5) {
+  if (!roomState.value) {
+    return;
+  }
+
+  if (roomState.value.players.length < 5) {
+    uni.showModal({
+      title: '人数不足',
+      content: '游戏至少需要5名玩家才能开始',
+      showCancel: false,
+      confirmText: '我知道了'
+    });
     return;
   }
 
@@ -394,7 +383,25 @@ const handleStartGame = () => {
 
 // 返回大厅
 const handleBackToLobby = () => {
-  uni.navigateBack();
+  if (roomUuid.value) {
+    socket.emit('leaveRoom', roomUuid.value);
+  }
+  uni.navigateTo({
+    url: '/pages/index'
+  });
+};
+
+// 离开房间
+const handleLeaveRoom = () => {
+  uni.showModal({
+    title: '确认离开',
+    content: '确定要离开房间吗？',
+    success: (res) => {
+      if (res.confirm) {
+        handleBackToLobby();
+      }
+    }
+  });
 };
 
 // 处理玩家点击
@@ -466,36 +473,27 @@ const handleShareRoom = () => {
   const roomId = roomUuid.value;
   const content = `房间ID: ${roomId}`;
 
-  uni.showModal({
-    title: '分享房间',
-    content: content,
-    confirmText: '复制ID',
-    success: (res) => {
-      if (res.confirm) {
-        uni.setClipboardData({
-          data: roomId,
-          success: () => {
-            uni.showToast({
-              title: '房间ID已复制',
-              icon: 'success',
-              duration: 2000
-            });
-          }
-        });
-      }
-    }
-  });
+  // uni.showModal({
+  //   title: '分享房间',
+  //   content: content,
+  //   confirmText: '复制ID',
+  //   success: (res) => {
+  //     if (res.confirm) {
+  //       uni.setClipboardData({
+  //         data: roomId,
+  //         success: () => {
+  //           uni.showToast({
+  //             title: '房间ID已复制',
+  //             icon: 'success',
+  //             duration: 2000
+  //           });
+  //         }
+  //       });
+  //     }
+  //   }
+  // });
 };
 
-// 获取房间状态文本
-const getRoomStageText = (stage?: string): string => {
-  const stageMap: Record<string, string> = {
-    created: '等待中',
-    locked: '已锁定',
-    started: '游戏中'
-  };
-  return stage ? stageMap[stage] || '未知' : '未知';
-};
 
 // 获取错误文本
 const getErrorText = (error: string): string => {
@@ -544,8 +542,7 @@ const handleAssassinate = (targetId: string) => {
 @import '@/styles/theme.scss';
 
 .room {
-  min-height: 100vh;
-  background-color: $bg-page;
+  padding-top: 160rpx;
 }
 
 .error-container {
@@ -560,10 +557,8 @@ const handleAssassinate = (targetId: string) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: $bg-card;
   padding: 80rpx 60rpx;
   border-radius: $radius-xlarge;
-  @include shadow-card;
 }
 
 .error-title {
@@ -574,28 +569,40 @@ const handleAssassinate = (targetId: string) => {
 }
 
 .room-content {
-  padding: 40rpx 20rpx;
+  padding: 120rpx 20rpx 40rpx;
+  position: relative;
 }
 
-.room-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 40rpx;
-  padding: $spacing-lg;
-  background-color: $bg-card;
-  border-radius: $radius-large;
-  @include shadow-card;
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 88rpx;
+  padding: 0 32rpx;
+  z-index: 1000;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.1);
+
 }
 
-.room-id {
+.top-bar-btn {
+  float: right;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  transition: opacity $transition-normal;
+}
+
+.top-bar-btn:active {
+  opacity: 0.6;
+}
+
+.top-bar-btn::after {
+  border: none;
+}
+
+.top-bar-text {
   font-size: $font-md;
-  color: $text-primary;
-  margin-bottom: 10rpx;
-}
-
-.room-stage {
-  font-size: $font-sm;
   color: $text-secondary;
 }
 
@@ -603,12 +610,12 @@ const handleAssassinate = (targetId: string) => {
   display: flex;
   flex-direction: column;
   gap: 30rpx;
-  padding-bottom: 180rpx; // 为底部按钮留出空间
+  padding-bottom: 40rpx;
 }
 
 .board-wrapper {
   width: 100%;
-  height: 680rpx;
+  height: 800rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -621,35 +628,6 @@ const handleAssassinate = (targetId: string) => {
   display: flex;
   flex-direction: column;
   gap: $spacing-lg;
-}
-
-// 中心内容样式
-.center-waiting,
-.center-gaming {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10rpx;
-}
-
-.waiting-title {
-  font-size: $font-lg;
-  color: $text-white;
-  font-weight: bold;
-  opacity: 0.9;
-}
-
-.player-count-text {
-  font-size: $font-xxl;
-  color: $player-leader;
-  font-weight: bold;
-}
-
-.game-stage-text {
-  font-size: $font-xl;
-  color: $text-white;
-  font-weight: bold;
-  opacity: 0.9;
 }
 
 .options-section {
@@ -682,27 +660,38 @@ const handleAssassinate = (targetId: string) => {
   border-radius: $radius-small;
 }
 
-.actions-section {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+
+.board-actions {
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
-  padding: $spacing-lg 20rpx;
-  background-color: $bg-card;
-  box-shadow: 0 -4rpx 12rpx $shadow-light;
-  z-index: 100;
+  align-items: center;
+  margin-top: $spacing-md;
 }
 
-.host-actions {
-  display: flex;
-  justify-content: center;
+.host-btn {
+  padding: 4rpx 0;
+  background-color: transparent;
+  color: $text-white;
+  border-radius: 0;
+  border: none;
+  line-height: 1rem;
+  transition: opacity $transition-normal;
 }
 
-.primary-btn,
-.secondary-btn,
+.host-btn:active {
+  opacity: 0.6;
+}
+
+.host-btn::after {
+  border: none;
+}
+
+.host-text {
+  font-size: $font-lg;
+  font-weight: bold;
+}
+
 .back-btn {
   width: 100%;
   height: 88rpx;
@@ -712,24 +701,14 @@ const handleAssassinate = (targetId: string) => {
   border: none;
   background-color: transparent;
   color: $text-primary;
-  font-weight: 600;
+  font-weight: bold;
   transition: opacity $transition-normal;
 }
 
-.primary-btn:active,
-.secondary-btn:active,
 .back-btn:active {
   opacity: 0.6;
 }
 
-.primary-btn[disabled] {
-  background-color: transparent;
-  color: $btn-disabled-text;
-  opacity: 0.4;
-}
-
-.primary-btn::after,
-.secondary-btn::after,
 .back-btn::after {
   border: none;
 }

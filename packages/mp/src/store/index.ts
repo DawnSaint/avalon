@@ -3,6 +3,7 @@ import { socket } from '@/api/socket';
 import { userProfilePath, userSettingsPath, alertStoragePath } from '@/api/const';
 import type {
   UserWithToken,
+  MPUserWithToken,
   IUserSettings,
   TUserState,
   TAlerts,
@@ -39,7 +40,7 @@ function setStorageData(key: string, data: any) {
   }
 }
 
-// 开发环境虚拟用户
+// 开发环境虚拟用户（小程序用户结构）
 function getDevProfile(): UserWithToken | null {
   // 仅在开发环境下生效
   // @ts-ignore
@@ -56,19 +57,17 @@ function getDevProfile(): UserWithToken | null {
     return storedProfile;
   }
 
-  // 开发环境默认虚拟用户
-  const devProfile: UserWithToken = {
-    id: 'dev-user-' + Date.now(),
+  // 返回临时 profile，真实 token 会在连接后自动获取
+  const tempProfile: any = {
+    id: 'mp_dev000000000000',
     name: '开发测试用户',
-    login: 'dev_user',
-    email: 'dev@test.com',
-    token: 'dev-token-' + Date.now(),
+    avatar: 'servant',
+    token: 'dev-token-temp', // 临时标记，会在 socket 连接后自动替换
+    userType: 'miniprogram',
     knownAchievements: []
   };
 
-  console.log('[Dev Mode] 使用虚拟登录状态:', devProfile);
-
-  return devProfile;
+  return tempProfile;
 }
 
 export const useMainStore = defineStore('main', {
@@ -165,12 +164,17 @@ export const useMainStore = defineStore('main', {
       return user;
     },
 
-    // 微信登录
-    async wechatLogin(code: string) {
-      const user = await socket.emitWithAck<UserWithToken | { error: string }>('wechatLogin', code);
+    // 微信登录（小程序专用）
+    async wechatLogin(code: string, userInfo?: { nickname?: string; avatarUrl?: string; unionid?: string }) {
+      const user = await socket.emitWithAck<MPUserWithToken | { error: string }>(
+        'mpWechatLogin',
+        code,
+        userInfo || {}
+      );
 
       if (user && !('error' in user)) {
-        this.updateUserProfile(user);
+        // MPUserWithToken 兼容 UserWithToken 接口，可以直接使用
+        this.updateUserProfile(user as any);
       }
 
       return user;
@@ -249,7 +253,11 @@ export const useMainStore = defineStore('main', {
       if (!this.users[uuid]) {
         this.updateUsersState(uuid, { status: 'loading' });
 
-        socket.emitWithAck('getUserProfile', uuid).then((profile) => {
+        // 判断是否是小程序用户（ID 以 mp_ 开头）
+        const isMPUser = uuid.startsWith('mp_');
+        const eventName = isMPUser ? 'getMPUserProfile' : 'getUserProfile';
+
+        socket.emitWithAck(eventName, uuid).then((profile) => {
           this.updateUsersState(uuid, { status: 'ready', profile });
         });
       }
@@ -260,9 +268,25 @@ export const useMainStore = defineStore('main', {
 });
 
 // 监听 Socket 事件
-socket.on('connect', () => {
+socket.on('connect', async () => {
   const store = useMainStore();
   store.updateConnectState(true);
+
+  // 开发环境：自动获取真实 token
+  // @ts-ignore
+  const isDev = process.env.NODE_ENV === 'development';
+  if (isDev && store.profile?.token === 'dev-token-temp') {
+    try {
+      const user = await socket.emitWithAck<MPUserWithToken | { error: string }>('devMPLogin');
+      if (user && !('error' in user)) {
+        console.log('[Dev Mode] 自动获取真实 token 成功');
+        store.updateUserProfile(user as any);
+        // updateAuthToken 会自动重连
+      }
+    } catch (e) {
+      console.warn('[Dev Mode] 自动获取 token 失败，后端可能未启动开发用户迁移', e);
+    }
+  }
 });
 
 socket.on('disconnect', () => {

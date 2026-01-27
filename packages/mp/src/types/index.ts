@@ -14,6 +14,15 @@ export interface UserWithToken {
   knownAchievements?: string[];
 }
 
+export interface MPUserWithToken {
+  id: string;
+  name: string;
+  avatar: string;
+  token: string;
+  userType: 'miniprogram';
+  knownAchievements?: string[];
+}
+
 export interface PublicUserProfile {
   id: string;
   name: string;

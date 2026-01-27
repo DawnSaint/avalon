@@ -38,10 +38,10 @@
               <text class="menu-label">历史战绩</text>
               <text class="menu-arrow">›</text>
             </view>
-            <view class="menu-item" @click="handleViewAchievements">
+            <!-- <view class="menu-item" @click="handleViewAchievements">
               <text class="menu-label">查看成就</text>
               <text class="menu-arrow">›</text>
-            </view>
+            </view> -->
           </view>
         </view>
       </view>
@@ -197,7 +197,7 @@ const handleWechatLogin = async () => {
   loginError.value = '';
 
   try {
-    // 调用微信登录
+    // 1. 获取微信授权码
     const loginRes = await new Promise<any>((resolve, reject) => {
       uni.login({
         provider: 'weixin',
@@ -211,8 +211,30 @@ const handleWechatLogin = async () => {
       return;
     }
 
-    // 发送code到后端验证
-    const result = await store.wechatLogin(loginRes.code);
+    // 2. 获取微信用户信息
+    let userInfo = {};
+    try {
+      const userInfoRes = await new Promise<any>((resolve, reject) => {
+        uni.getUserInfo({
+          provider: 'weixin',
+          success: resolve,
+          fail: reject
+        });
+      });
+
+      if (userInfoRes.userInfo) {
+        userInfo = {
+          nickname: userInfoRes.userInfo.nickName,
+          avatarUrl: userInfoRes.userInfo.avatarUrl,
+          // unionid 由后端从微信 API 获取
+        };
+      }
+    } catch (e) {
+      console.warn('Failed to get user info, using default:', e);
+    }
+
+    // 3. 发送到后端登录
+    const result = await store.wechatLogin(loginRes.code, userInfo);
 
     if (result && 'error' in result) {
       loginError.value = result.error;
@@ -256,9 +278,8 @@ const handleBack = () => {
 
 .profile-page {
   min-height: 100vh;
-  background-color: $bg-page;
   box-sizing: border-box;
-  padding: 40rpx 30rpx 140rpx; // 底部留空给TabBar
+  padding: 160rpx 30rpx 140rpx; // 底部留空给TabBar
   position: relative;
 }
 
@@ -302,7 +323,7 @@ const handleBack = () => {
 
 .profile-name {
   color: $text-primary;
-  font-size: 40rpx;
+  font-size: $font-xxl;
   font-weight: bold;
   text-align: center;
 }

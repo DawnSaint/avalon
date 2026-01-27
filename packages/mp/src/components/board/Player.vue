@@ -26,14 +26,7 @@
       <view v-if="isSelected" class="selected-indicator"></view>
 
       <!-- 玩家名称 -->
-      <view class="player-name-container">
-        <image
-          class="name-frame-image"
-          src="/static/images/core/name-frame.webp"
-          mode="aspectFit"
-        />
-        <text class="player-name">{{ displayName }}</text>
-      </view>
+      <view class="player-name-container">{{ displayName }}</view>
     </view>
   </view>
 </template>
@@ -65,7 +58,7 @@ const store = useMainStore();
 // 计算属性
 const playerName = computed(() => {
   const userState = store.users[props.player.id];
-  if (userState && 'profile' in userState) {
+  if (userState && 'profile' in userState && userState.profile) {
     return userState.profile.name;
   }
   // 异步加载用户信息
@@ -171,7 +164,7 @@ const handlePlayerClick = () => {
 
 .player-crown {
   position: absolute;
-  top: -20rpx;
+  top: -32rpx;
   left: 50%;
   transform: translateX(-50%);
   width: 48rpx;
@@ -204,32 +197,18 @@ const handlePlayerClick = () => {
 
 .player-name-container {
   position: absolute;
-  bottom: -35rpx;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: -32rpx;
   white-space: nowrap;
   max-width: 160rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4rpx 12rpx;
+  font-size: $font-xs;
+  color: $text-white;
+  z-index: 1;
 }
 
 .name-frame-image {
   position: absolute;
   width: 100%;
   height: 100%;
-  z-index: 0;
-}
-
-.player-name {
-  font-size: $font-xs;
-  color: $text-white;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
-  z-index: 1;
-  position: relative;
 }
 
 // 状态样式

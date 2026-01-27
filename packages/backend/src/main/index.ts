@@ -21,6 +21,7 @@ import { DBManager } from '@/db';
 import { validateJWT } from '@/user';
 import { AchievementManager } from '@/achievements';
 import { AvatarsManager } from '@/user/avatars';
+import jwt from 'jsonwebtoken';
 
 export class Manager {
   rooms: Dictionary<Room> = {};
@@ -190,7 +191,7 @@ export class Manager {
       this.destroyRoom(room.roomID);
     });
 
-    io.on('connection', (socket) => {
+    io.on('connection', async (socket) => {
       // Register endpoints
       registerRatingEndpoints(socket);
       registerTrueSkillRatingEndpoints(socket);
@@ -202,19 +203,38 @@ export class Manager {
 
       const userState: {
         userID: string | undefined;
+        userType: 'regular' | 'miniprogram' | undefined;
       } = {
         userID: undefined,
+        userType: undefined,
       };
 
       if (token) {
-        try {
-          const tokenValue = validateJWT(token);
-          userState.userID = tokenValue.id;
-          this.dbManager.getUserCompletedAchievements(tokenValue.id, 'hidden').then((achievements) => {
-            socket.emit('hiddenAchievementsList', achievements);
-          });
-        } catch (e) {
-          socket.emit('renewJWT');
+        // 开发环境：跳过临时 token 的验证
+        if (process.env.NODE_ENV !== 'production' && token === 'dev-token-temp') {
+          // 临时 token，不验证，等待前端调用 devMPLogin
+          console.log('[Dev Mode] Detected temporary token, waiting for devMPLogin...');
+        } else {
+          try {
+            const decoded = jwt.decode(token) as any;
+
+            if (decoded?.userType === 'miniprogram') {
+              const { validateMPUserJWT } = await import('@/user/mpuser-helpers');
+              const tokenValue = validateMPUserJWT(token);
+              userState.userID = tokenValue.id;
+              userState.userType = 'miniprogram';
+            } else {
+              const tokenValue = validateJWT(token);
+              userState.userID = tokenValue.id;
+              userState.userType = 'regular';
+            }
+
+            this.dbManager.getUserCompletedAchievements(userState.userID, 'hidden').then((achievements) => {
+              socket.emit('hiddenAchievementsList', achievements);
+            });
+          } catch (e) {
+            socket.emit('renewJWT');
+          }
         }
       }
 
@@ -293,14 +313,53 @@ export class Manager {
         cb(userForUI);
       });
 
+      socket.on('mpWechatLogin', async (code, userInfo, cb) => {
+        const { getWechatOpenid } = await import('@/user/wechat');
+        const openid = await getWechatOpenid(code);
+
+        if (!openid) {
+          cb({ error: 'wechatAuthFailed' });
+          return;
+        }
+
+        const user = await dbManager.mpWechatLogin(openid, userInfo);
+        cb(user);
+      });
+
       socket.on('getUserProfile', async (id, cb) => {
         const publicUser = await dbManager.getPublicUserProfile(id);
 
         cb(publicUser);
       });
 
+      socket.on('getMPUserProfile', async (id, cb) => {
+        const profile = await dbManager.getMPUserPublicProfile(id);
+        cb(profile);
+      });
+
+      // 开发环境专用：自动登录接口
+      if (process.env.NODE_ENV !== 'production') {
+        socket.on('devMPLogin', async (cb: (result: any) => void) => {
+          const { generateMPUserJWT } = await import('@/user/mpuser-helpers');
+          const devUserId = 'mp_dev000000000000';
+
+          const profile = await dbManager.getMPUserPublicProfile(devUserId);
+          if (profile) {
+            const token = generateMPUserJWT(profile);
+            cb({
+              ...profile,
+              token,
+              userType: 'miniprogram' as const,
+              knownAchievements: [],
+            });
+          } else {
+            cb({ error: 'devUserNotFound' });
+          }
+        });
+      }
+
       if (userState.userID) {
-        this.createMethodsForAuthUsers(socket, userState.userID);
+        this.createMethodsForAuthUsers(socket, userState.userID, userState.userType);
         this.createMethodsForGame(socket, userState.userID);
       }
 
@@ -333,48 +392,68 @@ export class Manager {
     }, 60000 * 30);
   }
 
-  createMethodsForAuthUsers(socket: ServerSocket, userID: string): void {
-    socket.on('updateUserPassword', async (password, newPassword, cb) => {
-      const result = await this.dbManager.updateUserCredentials(userID, password, 'password', newPassword);
+  createMethodsForAuthUsers(socket: ServerSocket, userID: string, userType?: 'regular' | 'miniprogram'): void {
+    // Mini-program user specific methods
+    if (userType === 'miniprogram') {
+      socket.on('updateMPUserName', (name) => {
+        this.dbManager.updateMPUserName(userID, name);
+      });
 
-      cb(result);
-    });
+      socket.on('updateMPUserAvatar', async (avatarID, cb) => {
+        await this.dbManager.updateMPUserAvatar(userID, avatarID);
+        cb(true);
+      });
 
-    socket.on('getUserAvatars', async (cb) => {
-      const avatars = await this.avatarsManager.getAvailableAvatarsForUser(userID);
-      cb(avatars);
-    });
+      socket.on('getMPMyProfile', async (cb) => {
+        const profile = await this.dbManager.getMPUserPublicProfile(userID);
+        cb(profile);
+      });
+    }
 
-    socket.on('getMyProfile', async (cb) => {
-      const userForUI = await this.dbManager.getUserProfile(userID);
+    // Regular user specific methods
+    if (userType === 'regular') {
+      socket.on('updateUserPassword', async (password, newPassword, cb) => {
+        const result = await this.dbManager.updateUserCredentials(userID, password, 'password', newPassword);
 
-      cb(userForUI);
-    });
+        cb(result);
+      });
 
-    socket.on('revealEasterEgg', () => {
-      eventBus.emit('playerRevealSecret', userID);
-    });
+      socket.on('getUserAvatars', async (cb) => {
+        const avatars = await this.avatarsManager.getAvailableAvatarsForUser(userID);
+        cb(avatars);
+      });
 
-    socket.on('updateUserAvatar', async (avatarID, cb) => {
-      const result = await this.avatarsManager.updateUserAvatar(userID, avatarID);
-      cb(result);
-    });
+      socket.on('getMyProfile', async (cb) => {
+        const userForUI = await this.dbManager.getUserProfile(userID);
 
-    socket.on('updateUserEmail', async (password, email, cb) => {
-      const result = await this.dbManager.updateUserCredentials(userID, password, 'email', email);
+        cb(userForUI);
+      });
 
-      cb(result);
-    });
+      socket.on('revealEasterEgg', () => {
+        eventBus.emit('playerRevealSecret', userID);
+      });
 
-    socket.on('updateUserLogin', async (password, login, cb) => {
-      const result = await this.dbManager.updateUserCredentials(userID, password, 'login', login);
+      socket.on('updateUserAvatar', async (avatarID, cb) => {
+        const result = await this.avatarsManager.updateUserAvatar(userID, avatarID);
+        cb(result);
+      });
 
-      cb(result);
-    });
+      socket.on('updateUserEmail', async (password, email, cb) => {
+        const result = await this.dbManager.updateUserCredentials(userID, password, 'email', email);
 
-    socket.on('updateUserName', (name) => {
-      this.dbManager.updateUserName(userID, name);
-    });
+        cb(result);
+      });
+
+      socket.on('updateUserLogin', async (password, login, cb) => {
+        const result = await this.dbManager.updateUserCredentials(userID, password, 'login', login);
+
+        cb(result);
+      });
+
+      socket.on('updateUserName', (name) => {
+        this.dbManager.updateUserName(userID, name);
+      });
+    }
 
     socket.on('createRoom', (cb) => {
       const uuid = crypto.randomUUID();

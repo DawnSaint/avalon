@@ -40,7 +40,7 @@ class SocketWrapper extends EventEmitter {
   public handshake: { auth: { token?: string } };
   public data: any = {};
 
-  private client: WebSocketClient;
+  public client: WebSocketClient;
   private server: WSServer;
 
   constructor(client: WebSocketClient, server: WSServer) {
@@ -117,8 +117,8 @@ export class WSServer extends EventEmitter {
           // Validate JWT
           if (client.handshake.auth.token) {
             try {
-              const user = validateJWT(client.handshake.auth.token) as UserForUI;
-              client.userID = user.id;
+                const user = validateJWT(client.handshake.auth.token) as UserForUI;
+                client.userID = user.id;
             } catch (e) {
               console.log('Invalid JWT token');
             }
@@ -234,17 +234,17 @@ export class WSServer extends EventEmitter {
     return this.to(room);
   }
 
-  emit(event: string, ...args: any[]) {
+  emit(event: string, ...args: any[]): boolean {
     if (event === 'connection') {
       // This is a server event, handle it differently
-      super.emit(event, ...args);
-      return;
+      return super.emit(event, ...args);
     }
 
     // Broadcast to all clients
     this.clients.forEach(client => {
       this.emitToClient(client, event, args[0]);
     });
+    return true;
   }
 
   // Override on() to handle server events properly

@@ -76,7 +76,6 @@ const players = computed(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: $bg-page;
   transition: background-color $transition-normal;
 }
 

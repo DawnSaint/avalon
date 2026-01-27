@@ -9,7 +9,7 @@ interface Config {
 }
 
 export const config: Config = {
-  MONGODB_URI: buildMongoURI(),
+  MONGODB_URI: process.env.MONGODB_URI || buildMongoURI(),
   DB_NAME: process.env.DB_NAME!,
   SECRET_KEY: process.env.SECRET_KEY!,
   WECHAT_APPID: process.env.WECHAT_APPID,

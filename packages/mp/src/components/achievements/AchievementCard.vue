@@ -7,7 +7,7 @@
     }"
   >
     <view class="achievement-icon">
-      <text class="icon-text">🏆</text>
+      <!-- Achievement icon -->
     </view>
 
     <view class="achievement-content">
@@ -37,7 +37,7 @@
             class="detailed-item"
             :class="{ completed: achievement.state?.[role] }"
           >
-            <text class="detail-icon">{{ achievement.state?.[role] ? '✓' : '✗' }}</text>
+            <text class="detail-icon">{{ achievement.state?.[role] ? '√' : '×' }}</text>
             <text class="detail-label">{{ getRoleName(role) }}</text>
           </view>
         </view>
@@ -53,7 +53,7 @@
             class="detailed-item"
             :class="{ completed: achievement.state?.[count] }"
           >
-            <text class="detail-icon">{{ achievement.state?.[count] ? '✓' : '✗' }}</text>
+            <text class="detail-icon">{{ achievement.state?.[count] ? '√' : '×' }}</text>
             <text class="detail-label">{{ count }}人</text>
           </view>
         </view>
@@ -62,7 +62,7 @@
 
     <!-- 完成标识 -->
     <view v-if="achievement.completed" class="completed-badge">
-      <text class="badge-text">✓</text>
+      <text class="badge-text">√</text>
     </view>
   </view>
 </template>

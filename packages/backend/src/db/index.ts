@@ -3,15 +3,18 @@ import { StartedRoomState, TTotalWinrateStats, TWinrateStats, VisualGameState } 
 import { roomModel } from '@/db/models/';
 import { query } from '@/db/query';
 import { UserLayer } from '@/db/user';
+import { MPUserLayer } from '@/db/mpuser';
 
 export * from '@/db/init';
 
 export class DBManager extends UserLayer {
   dbInstance: mongoose.Mongoose | undefined;
+  mpUserLayer: MPUserLayer;
 
   constructor(dbInstance: mongoose.Mongoose | undefined) {
     super();
     this.dbInstance = dbInstance;
+    this.mpUserLayer = new MPUserLayer();
   }
 
   async saveRoomToDB(roomState: StartedRoomState): Promise<void> {
@@ -69,5 +72,26 @@ export class DBManager extends UserLayer {
       roleStats: results[1],
       addonsStats: results[2],
     };
+  }
+
+  // Mini-program user proxy methods
+  async mpWechatLogin(openid: string, userInfo?: { nickname?: string; avatarUrl?: string; unionid?: string }) {
+    return this.mpUserLayer.wechatLogin(openid, userInfo);
+  }
+
+  async getMPUserByID(id: string) {
+    return this.mpUserLayer.getUserByID(id);
+  }
+
+  async getMPUserPublicProfile(id: string) {
+    return this.mpUserLayer.getPublicUserProfile(id);
+  }
+
+  async updateMPUserName(id: string, name: string) {
+    return this.mpUserLayer.updateUserName(id, name);
+  }
+
+  async updateMPUserAvatar(id: string, avatarID: string) {
+    return this.mpUserLayer.updateUserAvatar(id, avatarID);
   }
 }

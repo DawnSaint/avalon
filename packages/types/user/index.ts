@@ -1,6 +1,7 @@
 import { prop, modelOptions } from '@typegoose/typegoose';
 
 export * from './avatars';
+export * from './miniprogram';
 
 export class PublicUserProfile {
   @prop({ required: true, unique: true })

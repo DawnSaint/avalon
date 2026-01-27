@@ -1,5 +1,5 @@
 <template>
-  <view class="wiki-page">
+  <scroll-view class="wiki-page" scroll-y enable-back-to-top>
     <view class="wiki-container">
       <text class="wiki-title">阿瓦隆规则指南</text>
 
@@ -317,7 +317,7 @@
             <image class="role-avatar" :src="getRoleImage('evil_lancelot')" mode="aspectFit" />
             <view class="role-content">
               <view class="role-header">
-                <text class="role-title">邪恶兰斯洛特 (Evil Lancelot)</text>
+                <text class="role-title">兰斯洛特 (Evil Lancelot)</text>
                 <text class="role-loyalty evil-tag">邪恶</text>
               </view>
               <text class="role-description">
@@ -431,6 +431,106 @@
               </view>
             </view>
           </view>
+
+          <!-- 骗子 -->
+          <view class="role-detail evil">
+            <image class="role-avatar" :src="getRoleImage('trickster')" mode="aspectFit" />
+            <view class="role-content">
+              <view class="role-header">
+                <text class="role-title">骗子 (Trickster)</text>
+                <text class="role-loyalty evil-tag">邪恶</text>
+              </view>
+              <text class="role-description">
+                当被湖中女神或牧师检查忠诚时会撒谎，将自己伪装成善良方。需要建立可信形象，制造混乱并操控信息流向。
+              </text>
+              <view class="role-tips">
+                <text class="tips-title">游戏提示：</text>
+                <text class="tips-item">• 建立可信的人设</text>
+                <text class="tips-item">• 巧妙地在其他角色上播下怀疑的种子</text>
+                <text class="tips-item">• 操控投票模式和信息流</text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 女巫 -->
+          <view class="role-detail evil">
+            <image class="role-avatar" :src="getRoleImage('witch')" mode="aspectFit" />
+            <view class="role-content">
+              <view class="role-header">
+                <text class="role-title">女巫 (Witch)</text>
+                <text class="role-loyalty evil-tag">邪恶</text>
+              </view>
+              <text class="role-description">
+                可以隐藏一次任务结果并触发随机玩家的忠诚检验。这个能力只能使用一次，需要选择最能制造混乱并保护盟友的时机。
+              </text>
+              <view class="role-tips">
+                <text class="tips-title">游戏提示：</text>
+                <text class="tips-item">• 利用技能让玩家对任务结果产生不确定性</text>
+                <text class="tips-item">• 隐藏任务前务必权衡后果</text>
+                <text class="tips-item">• 制造不确定性以打乱善良方的计划</text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 揭秘者 -->
+          <view class="role-detail evil">
+            <image class="role-avatar" :src="getRoleImage('revealer')" mode="aspectFit" />
+            <view class="role-content">
+              <view class="role-header">
+                <text class="role-title">揭秘者 (Revealer)</text>
+                <text class="role-loyalty evil-tag">邪恶</text>
+              </view>
+              <text class="role-description">
+                在邪恶方失败两次任务后，身份会被所有玩家知晓。需要提前规划策略，在身份暴露后继续制造混乱。
+              </text>
+              <view class="role-tips">
+                <text class="tips-title">游戏提示：</text>
+                <text class="tips-item">• 在失败任务中主动出击以保护盟友</text>
+                <text class="tips-item">• 身份暴露后继续操控信息流</text>
+                <text class="tips-item">• 提前几步思考策略</text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 疯子 -->
+          <view class="role-detail evil">
+            <image class="role-avatar" :src="getRoleImage('lunatic')" mode="aspectFit" />
+            <view class="role-content">
+              <view class="role-header">
+                <text class="role-title">疯子 (Lunatic)</text>
+                <text class="role-loyalty evil-tag">邪恶</text>
+              </view>
+              <text class="role-description">
+                必须在参与的每个任务中投失败票。这个强制行为增加了挑战性，需要在其他方面采用策略来避免立即被发现。
+              </text>
+              <view class="role-tips">
+                <text class="tips-title">游戏提示：</text>
+                <text class="tips-item">• 在讨论中表现得像有选择权</text>
+                <text class="tips-item">• 变化行为以避免固定模式</text>
+                <text class="tips-item">• 选择引起最大混乱的时机参与任务</text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 莽夫 -->
+          <view class="role-detail evil">
+            <image class="role-avatar" :src="getRoleImage('brute')" mode="aspectFit" />
+            <view class="role-content">
+              <view class="role-header">
+                <text class="role-title">莽夫 (Brute)</text>
+                <text class="role-loyalty evil-tag">邪恶</text>
+              </view>
+              <text class="role-description">
+                在前三个任务中可以自由选择成功或失败，但在第四和第五个任务中只能投成功。需要利用早期灵活性制造混乱，后期建立信任。
+              </text>
+              <view class="role-tips">
+                <text class="tips-title">游戏提示：</text>
+                <text class="tips-item">• 利用早期任务的灵活性迷惑对手</text>
+                <text class="tips-item">• 在早期任务中保持不可预测性</text>
+                <text class="tips-item">• 后期建立足够信任以转移怀疑</text>
+              </view>
+            </view>
+          </view>
         </view>
       </view>
 
@@ -442,41 +542,49 @@
         </view>
 
         <view v-if="expandedSections.expansionModes" class="section-body">
-          <view class="addon-detail">
-            <image class="addon-image" :src="getImage('features/lady_of_lake.webp')" mode="aspectFit" />
-            <view class="addon-content">
-              <text class="addon-name">湖中女神 (Lady of the Lake)</text>
-              <text class="addon-desc">
+          <view class="role-detail">
+            <image class="role-avatar" :src="getImage('features/lady_of_lake.webp')" mode="aspectFit" />
+            <view class="role-content">
+              <view class="role-header">
+                <text class="role-title">湖中女神 (Lady of the Lake)</text>
+              </view>
+              <text class="role-description">
                 持有湖中女神的玩家可以查看另一名玩家的忠诚度（善良或邪恶），查看后将湖中女神传递给其他玩家（不能传回上一位持有者）。这是一个强大的信息获取工具，但使用时要谨慎，因为暴露信息可能会引起邪恶方的注意。
               </text>
             </view>
           </view>
 
-          <view class="addon-detail">
-            <image class="addon-image" :src="getImage('features/excalibur.webp')" mode="aspectFit" />
-            <view class="addon-content">
-              <text class="addon-name">圣剑 (Excalibur)</text>
-              <text class="addon-desc">
+          <view class="role-detail">
+            <image class="role-avatar" :src="getImage('features/excalibur.webp')" mode="aspectFit" />
+            <view class="role-content">
+              <view class="role-header">
+                <text class="role-title">圣剑 (Excalibur)</text>
+              </view>
+              <text class="role-description">
                 持有圣剑的玩家可以使用圣剑强制某个任务成功，无论队伍中是否有邪恶方投了失败票。圣剑只能使用一次，使用后会被回收。这是善良方的关键道具，需要在最关键的时刻使用。
               </text>
             </view>
           </view>
 
-          <view class="addon-detail">
-            <image class="addon-image" :src="getImage('features/lady_of_sea.webp')" mode="aspectFit" />
-            <view class="addon-content">
-              <text class="addon-name">海之女神 (Lady of the Sea)</text>
-              <text class="addon-desc">
+          <view class="role-detail">
+            <image class="role-avatar" :src="getImage('features/lady_of_sea.webp')" mode="aspectFit" />
+            <view class="role-content">
+              <view class="role-header">
+                <text class="role-title">海之女神 (Lady of the Sea)</text>
+              </view>
+              <text class="role-description">
                 与湖中女神类似，但海之女神允许持有者查看玩家的具体角色信息，而不仅仅是忠诚度。这提供了更详细的信息，但也意味着更大的责任和风险。
               </text>
             </view>
           </view>
 
-          <view class="addon-detail">
-            <image class="addon-image" :src="getImage('features/plot_cards.webp')" mode="aspectFit" />
-            <view class="addon-content">
-              <text class="addon-name">剧情卡 (Plot Cards)</text>
-              <text class="addon-desc">
+          <view class="role-detail">
+            <image class="role-avatar" :src="getImage('features/plot_cards.webp')" mode="aspectFit" />
+            <view class="role-content">
+              <view class="role-header">
+                <text class="role-title">剧情卡 (Plot Cards)</text>
+              </view>
+              <text class="role-description">
                 剧情卡是一系列特殊事件卡牌，可以在游戏中触发各种效果，如额外的投票权、强制查看他人身份、更换队伍成员等。每张剧情卡都有独特的效果，为游戏增加了更多变数和策略性。
               </text>
             </view>
@@ -484,10 +592,8 @@
         </view>
       </view>
     </view>
-
-    <!-- 底部导航栏 -->
-    <TabBar />
-  </view>
+  </scroll-view>
+  <TabBar />
 </template>
 
 <script setup lang="ts">
@@ -514,36 +620,31 @@ const toggleSection = (key: string) => {
 @import '@/styles/theme.scss';
 
 .wiki-page {
-  min-height: 100vh;
-  background-color: $bg-page;
+  height: calc(100vh - 3.125rem);
   box-sizing: border-box;
-  padding: $spacing-lg $spacing-lg 140rpx; // 底部留空给TabBar
-  position: relative;
 
   // 棋盘背景
-  &::before {
-    content: '';
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 600rpx;
-    height: 600rpx;
-    background-image: url('https://storage.yandexcloud.net/avalon-game/images/core/board.webp');
-    background-size: 100%;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: 0.08;
-    z-index: 0;
-    pointer-events: none;
-  }
+  // &::before {
+  //   content: '';
+  //   position: fixed;
+  //   top: 50%;
+  //   left: 50%;
+  //   transform: translate(-50%, -50%);
+  //   width: 600rpx;
+  //   height: 600rpx;
+  //   background-image: url('https://storage.yandexcloud.net/avalon-game/images/core/board.webp');
+  //   background-size: 100%;
+  //   background-position: center;
+  //   background-repeat: no-repeat;
+  //   opacity: 0.08;
+  //   z-index: 0;
+  //   pointer-events: none;
+  // }
 }
 
 .wiki-container {
-  max-width: 700rpx;
-  margin: 0 auto;
+  padding: 160rpx $spacing-lg $spacing-lg;
   position: relative;
-  z-index: 1;
 }
 
 .wiki-title {
@@ -589,7 +690,7 @@ const toggleSection = (key: string) => {
 }
 
 .section-body {
-  padding: $spacing-md 0;
+  padding: $spacing-lg 0;
   animation: fadeIn 0.3s ease-out;
 }
 
@@ -850,49 +951,6 @@ const toggleSection = (key: string) => {
   margin-bottom: $spacing-xs;
 }
 
-// 插件样式
-.addon-item {
-  margin-bottom: $spacing-lg;
-  padding: $spacing-md;
-  border-radius: $radius-medium;
-}
-
-.addon-detail {
-  display: flex;
-  gap: $spacing-md;
-  margin-bottom: 40rpx;
-  padding: $spacing-md;
-  border-radius: $radius-medium;
-}
-
-.addon-image {
-  width: 140rpx;
-  height: 140rpx;
-  flex-shrink: 0;
-  border-radius: $radius-medium;
-}
-
-.addon-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
-}
-
-.addon-name {
-  font-size: $font-md;
-  font-weight: bold;
-  color: $text-primary;
-  display: block;
-}
-
-.addon-desc {
-  font-size: $font-sm;
-  color: $text-secondary;
-  line-height: 1.8;
-  display: block;
-}
-
 // 角色详解样式
 .section-subtitle {
   font-size: $font-md;
@@ -913,7 +971,7 @@ const toggleSection = (key: string) => {
 .role-detail {
   display: flex;
   gap: $spacing-md;
-  margin-bottom: 40rpx;
+  margin-bottom: 48rpx;
   border-radius: $radius-medium;
 }
 

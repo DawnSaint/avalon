@@ -57,7 +57,6 @@ const handleTabClick = (path: string) => {
   left: 0;
   right: 0;
   height: 100rpx;
-  background-color: $bg-page;
   border-top: 1rpx solid rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;

@@ -1,16 +1,11 @@
 <template>
   <view class="host-panel">
-    <button class="host-btn" @click="showPanel = true">
-      <text class="host-icon">⚙️</text>
-      <text class="host-text">房主菜单</text>
-    </button>
-
     <!-- 房主操作弹窗 -->
-    <view v-if="showPanel" class="panel-overlay" @tap="handleOverlayTap">
+    <view v-if="visible" class="panel-overlay" @tap="handleOverlayTap">
       <view class="panel-content" @tap.stop>
         <view class="panel-header">
-          <text class="panel-title">房主控制</text>
-          <view class="close-btn" @tap="showPanel = false">
+          <text class="panel-title">选项</text>
+          <view class="close-btn" @tap="handleClose">
             <text class="close-icon">✕</text>
           </view>
         </view>
@@ -18,39 +13,28 @@
         <view class="panel-body">
           <!-- 游戏前的操作 -->
           <view v-if="roomStage !== 'started'" class="action-section">
-            <text class="section-title">房间管理</text>
+            <!-- <button class="action-btn" @tap="handleLockRoom">
+              {{ roomStage === 'created' ? '锁定房间' : '解锁房间' }}
+            </button> -->
 
-            <button class="action-btn primary" @tap="handleLockRoom">
-              {{ roomStage === 'created' ? '🔒 锁定房间' : '🔓 解锁房间' }}
-            </button>
-
-            <button class="action-btn" @tap="handleShuffle">
-              🔀 随机排列玩家
-            </button>
-
-            <button class="action-btn" @tap="handleGameSettings">
-              ⚙️ 游戏设置
-            </button>
-
-            <button class="action-btn" @tap="handleShareRoom">
-              📤 分享房间
-            </button>
+            <!-- <button class="action-btn" @tap="handleGameSettings">
+              游戏设置
+            </button> -->
           </view>
 
           <!-- 游戏中的操作 -->
           <view v-else class="action-section">
-            <text class="section-title">游戏控制</text>
 
             <view class="hint-text">
-              <text>⚠️ 这些操作会影响正在进行的游戏</text>
+              <text>注意：这些操作会影响正在进行的游戏</text>
             </view>
 
             <button class="action-btn warning" @tap="handleEndGame">
-              ⏹️ 结束游戏
+              结束游戏
             </button>
 
             <button class="action-btn warning" @tap="handleRestartGame">
-              🔄 结束并重启
+              结束并重启
             </button>
           </view>
         </view>
@@ -60,31 +44,34 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
 import { socket } from '@/api/socket';
 
 interface Props {
   roomUuid: string;
   roomStage: 'created' | 'locked' | 'started';
+  visible: boolean;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<{
+  close: [];
   openSettings: [];
-  share: [];
 }>();
-
-const showPanel = ref(false);
 
 // 处理遮罩层点击
 const handleOverlayTap = () => {
-  showPanel.value = false;
+  emit('close');
+};
+
+// 关闭面板
+const handleClose = () => {
+  emit('close');
 };
 
 // 锁定/解锁房间
 const handleLockRoom = () => {
   socket.emit('lockRoom', props.roomUuid);
-  showPanel.value = false;
+  emit('close');
   uni.showToast({
     title: props.roomStage === 'created' ? '房间已锁定' : '房间已解锁',
     icon: 'success',
@@ -92,35 +79,10 @@ const handleLockRoom = () => {
   });
 };
 
-// 随机排列玩家
-const handleShuffle = () => {
-  uni.showModal({
-    title: '确认操作',
-    content: '确定要随机排列玩家顺序吗？',
-    success: (res) => {
-      if (res.confirm) {
-        socket.emit('shuffle', props.roomUuid);
-        showPanel.value = false;
-        uni.showToast({
-          title: '已重新排列',
-          icon: 'success',
-          duration: 1500
-        });
-      }
-    }
-  });
-};
-
 // 游戏设置
 const handleGameSettings = () => {
-  showPanel.value = false;
+  emit('close');
   emit('openSettings');
-};
-
-// 分享房间
-const handleShareRoom = () => {
-  showPanel.value = false;
-  emit('share');
 };
 
 // 结束游戏
@@ -132,7 +94,7 @@ const handleEndGame = () => {
     success: (res) => {
       if (res.confirm) {
         socket.emit('endGame', props.roomUuid);
-        showPanel.value = false;
+        emit('close');
         uni.showToast({
           title: '游戏已结束',
           icon: 'success',
@@ -152,7 +114,7 @@ const handleRestartGame = () => {
     success: (res) => {
       if (res.confirm) {
         socket.emit('endAndRestartGame', props.roomUuid);
-        showPanel.value = false;
+        emit('close');
         uni.showToast({
           title: '正在重启游戏',
           icon: 'loading',
@@ -169,36 +131,6 @@ const handleRestartGame = () => {
 
 .host-panel {
   position: relative;
-}
-
-.host-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: $spacing-xs;
-  padding: 12rpx 24rpx;
-  background: transparent;
-  color: $text-primary;
-  border-radius: 0;
-  border: none;
-  transition: opacity $transition-normal;
-}
-
-.host-btn:active {
-  opacity: 0.6;
-}
-
-.host-btn::after {
-  border: none;
-}
-
-.host-icon {
-  font-size: 32rpx;
-}
-
-.host-text {
-  font-size: 28rpx;
-  font-weight: 600;
 }
 
 .panel-overlay {
@@ -261,8 +193,6 @@ const handleRestartGame = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  background-color: $border-light;
 }
 
 .close-icon {
@@ -280,13 +210,6 @@ const handleRestartGame = () => {
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
-}
-
-.section-title {
-  font-size: $font-md;
-  font-weight: bold;
-  color: $text-secondary;
-  margin-bottom: 10rpx;
 }
 
 .hint-text {

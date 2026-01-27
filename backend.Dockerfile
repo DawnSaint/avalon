@@ -1,4 +1,4 @@
-FROM --platform=${BUILDPLATFORM} node:21-slim
+FROM --platform=${BUILDPLATFORM} node:22-slim
 
 # App directory
 ARG APP_DIR=app
@@ -7,7 +7,6 @@ WORKDIR ${APP_DIR}
 
 # Install
 COPY package*.json ./
-COPY packages/ui/package.json ./packages/ui/
 COPY packages/types/package.json ./packages/types/
 COPY packages/backend/package.json ./packages/backend/
 

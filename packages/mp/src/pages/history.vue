@@ -98,7 +98,6 @@ onMounted(() => {
 
 .history-page {
   min-height: 100vh;
-  background-color: $bg-page;
   padding: $spacing-lg $spacing-lg 140rpx;
 }
 

@@ -1,17 +1,15 @@
 <template>
   <view class="lobby">
     <!-- 主标题 -->
-    <view class="lobby-header">
-      <text class="header-text">阿瓦隆在线</text>
-    </view>
+    <view class="lobby-header">阿瓦隆在线</view>
 
     <!-- 创建房间按钮 -->
     <button class="create-room-btn" @click="createRoom">创建房间</button>
 
     <!-- 房间列表 -->
     <view class="rooms-container">
+      <view class="list-header">游戏列表:</view>
       <view v-if="roomsList && roomsList.length" class="rooms-list">
-        <view class="list-header">游戏列表:</view>
         <view
           v-for="(game, index) in roomsList"
           :key="game.uuid"
@@ -163,23 +161,19 @@ onUnmounted(() => {
 .lobby {
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 40rpx 20rpx 140rpx; // 底部留空给TabBar
-  background-color: $bg-page;
+  padding: 120rpx 20rpx 140rpx; // 底部留空给TabBar
 }
 
 .lobby-header {
-  margin: 40rpx 0 60rpx;
-}
-
-.header-text {
   font-size: $font-xxl;
   font-weight: bold;
   color: $text-primary;
+  text-align: center;
 }
 
 .create-room-btn {
-  width: auto;
-  padding: 20rpx 60rpx;
+
+  margin: 40rpx 0;
   background-color: transparent;
   color: $text-primary;
   border-radius: 0;
