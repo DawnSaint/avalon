@@ -1,6 +1,7 @@
 import { io } from 'socket.io-client';
 
-import type { Dictionary, Socket } from '@avalon/types';
+import type { Dictionary } from '@avalon/types';
+import type { Socket } from '@avalon/types/api/client-sockets';
 
 import { socketURL } from '@/api/const';
 

@@ -2,7 +2,7 @@ import { prop, modelOptions, index } from '@typegoose/typegoose';
 
 // 公开用户信息
 export class MPUserPublicProfile {
-  @prop({ required: true, unique: true })
+  @prop({ required: true })
   public id!: string;
 
   @prop({ required: true })

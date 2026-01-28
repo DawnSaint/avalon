@@ -3,7 +3,6 @@ import type { VisualGameState } from '../game/state';
 import type { GameOptions } from '../game/options';
 
 import type { Server as SuperServer, Socket as SuperServerSocket } from 'socket.io';
-import type { Socket as SuperSocket } from 'socket.io-client';
 import type { TVoteOption } from '../game/vote';
 import type { TMissionResult } from '../game/mission';
 import type { TLoyalty, TRoles } from '../game/roles';
@@ -178,10 +177,13 @@ export interface ClientToServerEvents extends ClientToServerUserEvents, ClientTo
   stopCustomTimer: (uuid: string) => void;
 }
 
+// Server-side types (used by backend)
 export type Server = SuperServer<ClientToServerEvents, ServerToClientEvents>;
-export type Socket = SuperSocket<ServerToClientEvents, ClientToServerEvents>;
 
 // Extend ServerSocket to include userID property
 export interface ServerSocket extends SuperServerSocket<ClientToServerEvents, ServerToClientEvents> {
   userID?: string;
 }
+
+// Note: Client-side Socket type has been moved to client-sockets.ts
+// to avoid requiring socket.io-client dependency in backend builds

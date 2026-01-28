@@ -4,8 +4,6 @@ import { createServer } from 'node:http';
 import CookieParser from 'cookie-parser';
 import cors from 'cors';
 
-import { backendPort, frontendURL } from '@/const';
-
 import { connectDB, DBManager } from '@/db';
 
 import { Manager } from '@/main';
@@ -16,7 +14,7 @@ const app = express();
 const server = createServer(app);
 const corsOpts = {
   cors: {
-    origin: frontendURL,
+    origin: '*', // Allow all origins
     credentials: true,
   },
 };
@@ -37,6 +35,6 @@ connectDB().then(async (mongoose) => {
   console.log('WebSocket server ready (compatible with uni-app)');
 });
 
-server.listen(backendPort, () => {
-  console.log(`server running at http://localhost:${backendPort}`);
+server.listen(3000, () => {
+  console.log(`server running at http://localhost:3000`);
 });
