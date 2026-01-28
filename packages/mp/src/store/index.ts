@@ -18,6 +18,7 @@ interface State {
   hideSpoilers: boolean;
   connect: boolean | null;
   alerts: TAlerts;
+  fontLoaded: boolean;
 }
 
 // 辅助函数：从存储中读取数据
@@ -50,6 +51,14 @@ function getDevProfile(): UserWithToken | null {
     return null;
   }
 
+  // 检查编译平台，如果是微信小程序则不设置默认用户
+  // @ts-ignore
+  const isWeChat = process.env.UNI_PLATFORM === 'mp-weixin';
+
+  if (isWeChat) {
+    return null;
+  }
+
   const storedProfile = getStorageData<UserWithToken | null>(userProfilePath, null);
 
   // 如果已有profile，返回已有的
@@ -77,7 +86,8 @@ export const useMainStore = defineStore('main', {
     settings: getStorageData<IUserSettings | null>(userSettingsPath, null),
     hideSpoilers: false,
     connect: null,
-    alerts: getStorageData<TAlerts>(alertStoragePath, {})
+    alerts: getStorageData<TAlerts>(alertStoragePath, {}),
+    fontLoaded: false
   }),
 
   getters: {
@@ -87,6 +97,11 @@ export const useMainStore = defineStore('main', {
   },
 
   actions: {
+    // 设置字体加载状态
+    setFontLoaded(loaded: boolean) {
+      this.fontLoaded = loaded;
+    },
+
     // 更新警告计数器
     updateAlertCounter(alert: TAlertsName) {
       this.alerts[alert] = (this.alerts[alert] ?? 0) + 1;

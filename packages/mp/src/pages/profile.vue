@@ -78,8 +78,6 @@
       </view>
     </view>
 
-    <!-- 底部导航栏 -->
-    <TabBar />
   </view>
 </template>
 
@@ -87,7 +85,6 @@
 import { computed, ref, onMounted } from 'vue';
 import { useMainStore } from '@/store';
 import { socket } from '@/api/socket';
-import TabBar from '@/components/TabBar.vue';
 import HistoryView from '@/components/profile/HistoryView.vue';
 import AchievementsView from '@/components/profile/AchievementsView.vue';
 

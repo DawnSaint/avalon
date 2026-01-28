@@ -1,60 +1,58 @@
 <template>
   <view class="lobby">
     <!-- 主标题 -->
-    <view class="lobby-header">阿瓦隆在线</view>
+    <view class="lobby-header">
+      <text>AVAL</text>
+      <text class="lobby-header-on">ON</text>
+      <text class="lobby-header-line">line</text>
+    </view>
 
     <!-- 创建房间按钮 -->
-    <button class="create-room-btn" @click="createRoom">创建房间</button>
+    <button class="create-room-btn" @click="createRoom" :loading="isCreating" :disabled="isCreating">
+      {{ isCreating ? '创建中...' : '创建房间' }}
+    </button>
 
     <!-- 房间列表 -->
-    <view class="rooms-container">
-      <view class="list-header">游戏列表:</view>
-      <view v-if="roomsList && roomsList.length" class="rooms-list">
-        <view
-          v-for="(game, index) in roomsList"
-          :key="game.uuid"
-          class="game-item"
-          @click="handleRoomClick(game.uuid)"
-        >
-          <view class="game-index">{{ index + 1 }}.</view>
-          <view class="game-container">
-            <view class="game-left">
-              <view class="game-name">
-                <text v-if="game.result?.winner" :class="`${game.result.winner}-loyalty-icon`"></text>
-                <text class="host-name">{{ roomsListHosts[index] || '加载中...' }}</text>
-              </view>
-              <view v-if="hasOptions(game.options)" class="options-preview">
-                <text class="option-text">配置: </text>
-                <text v-if="game.options.roles.merlin" class="option-badge">梅林 </text>
-                <text v-if="game.options.roles.percival" class="option-badge">派西维尔 </text>
-                <text v-if="game.options.roles.morgana" class="option-badge">莫甘娜 </text>
-                <text v-if="game.options.roles.mordred" class="option-badge">莫德雷德 </text>
-                <text v-if="game.options.addons.lady_of_lake" class="option-badge">湖中女神 </text>
-              </view>
+    <view v-if="roomsList && roomsList.length" class="rooms-list">
+      <view
+        v-for="(game, index) in roomsList"
+        :key="game.uuid"
+        class="game-item"
+        @click="handleRoomClick(game.uuid)"
+      >
+        <view class="game-index">{{ index + 1 }}.</view>
+        <view class="game-container">
+          <view class="game-left">
+            <view class="game-name">
+              <text v-if="game.result?.winner" :class="`${game.result.winner}-loyalty-icon`"></text>
+              <text class="host-name">{{ roomsListHosts[index] || '加载中...' }}</text>
             </view>
-            <view class="game-right">
-              <view class="game-right-content">
-                <view
-                  v-if="game.state === 'created' && game.options.features?.lookingForPlayers"
-                  class="status-chip looking-for-players"
-                >
-                  寻找玩家
-                </view>
-                <view class="players-amount">
-                  {{ game.state === 'created' ? `${game.players}/10` : `${game.players} 玩家` }}
-                </view>
+            <view v-if="hasOptions(game.options)" class="options-preview">
+              <text class="option-text">配置: </text>
+              <text v-if="game.options.roles.merlin" class="option-badge">梅林 </text>
+              <text v-if="game.options.roles.percival" class="option-badge">派西维尔 </text>
+              <text v-if="game.options.roles.morgana" class="option-badge">莫甘娜 </text>
+              <text v-if="game.options.roles.mordred" class="option-badge">莫德雷德 </text>
+              <text v-if="game.options.addons.lady_of_lake" class="option-badge">湖中女神 </text>
+            </view>
+          </view>
+          <view class="game-right">
+            <view class="game-right-content">
+              <view
+                v-if="game.state === 'created' && game.options.features?.lookingForPlayers"
+                class="status-chip looking-for-players"
+              >
+                寻找玩家
+              </view>
+              <view class="players-amount">
+                {{ game.state === 'created' ? `${game.players}/10` : `${game.players} 玩家` }}
               </view>
             </view>
           </view>
         </view>
       </view>
-      <view v-else class="empty-list">
-        <text>暂无游戏房间</text>
-      </view>
     </view>
 
-    <!-- 底部导航栏 -->
-    <TabBar />
   </view>
 </template>
 
@@ -63,10 +61,11 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useMainStore } from '@/store';
 import { socket } from '@/api/socket';
 import type { TRoomsList, GameOptionsRoles, GameOptionsAddons } from '@/types';
-import TabBar from '@/components/TabBar.vue';
+
 
 const store = useMainStore();
 const roomsList = ref<TRoomsList>([]);
+const isCreating = ref(false);
 
 // 获取房间主持人名称列表
 const roomsListHosts = computed(() => {
@@ -110,6 +109,12 @@ const createRoom = async () => {
     return;
   }
 
+  if (isCreating.value) {
+    return;
+  }
+
+  isCreating.value = true;
+
   try {
     const uuid = await socket.emitWithAck<string>('createRoom');
     uni.navigateTo({
@@ -122,6 +127,8 @@ const createRoom = async () => {
       icon: 'none',
       duration: 2000
     });
+  } finally {
+    isCreating.value = false;
   }
 };
 
@@ -165,20 +172,29 @@ onUnmounted(() => {
 }
 
 .lobby-header {
+  font-family: 'Overt', sans-serif;
   font-size: $font-xxl;
   font-weight: bold;
   color: $text-primary;
   text-align: center;
 }
 
-.create-room-btn {
+.lobby-header-on {
+  color: $accent;
+}
 
-  margin: 40rpx 0;
+.lobby-header-line {
+  color: $accent;
+  font-size: $font-lg;
+}
+
+
+.create-room-btn {
+  margin: 64rpx 64px;
   background-color: transparent;
   color: $text-primary;
   border-radius: 0;
   font-size: $font-xl;
-  margin-bottom: 60rpx;
   border: none;
   font-weight: 600;
   transition: opacity $transition-normal;
@@ -188,21 +204,16 @@ onUnmounted(() => {
   opacity: 0.6;
 }
 
+.create-room-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: transparent;
+}
+
 .create-room-btn::after {
   border: none;
 }
 
-.rooms-container {
-  width: 100%;
-  max-width: 700rpx;
-}
-
-.list-header {
-  font-size: $font-xxl;
-  font-weight: bold;
-  margin-bottom: $spacing-lg;
-  color: $text-primary;
-}
 
 .rooms-list {
   width: 100%;
@@ -307,12 +318,6 @@ onUnmounted(() => {
   font-weight: 500;
 }
 
-.empty-list {
-  text-align: center;
-  padding: 100rpx 0;
-  color: $text-disabled;
-  font-size: $font-md;
-}
 
 // 忠诚度图标样式
 .good-loyalty-icon,

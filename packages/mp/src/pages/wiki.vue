@@ -593,12 +593,10 @@
       </view>
     </view>
   </scroll-view>
-  <TabBar />
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import TabBar from '@/components/TabBar.vue';
 import { getRoleImage, getImage } from '@/utils/roleImages';
 
 // 折叠面板状态管理
@@ -620,7 +618,7 @@ const toggleSection = (key: string) => {
 @import '@/styles/theme.scss';
 
 .wiki-page {
-  height: calc(100vh - 3.125rem);
+  height: calc(100vh - 2.5rem - 120rpx);
   box-sizing: border-box;
 
   // 棋盘背景
@@ -678,7 +676,7 @@ const toggleSection = (key: string) => {
 }
 
 .expand-icon {
-  font-size: 40rpx;
+  font-size: $font-xxl;
   color: $text-secondary;
   margin-left: $spacing-md;
   transition: transform $transition-normal;
@@ -736,7 +734,7 @@ const toggleSection = (key: string) => {
 }
 
 .camp-badge-label {
-  font-size: $font-md;
+  font-size: $font-lg;
   font-weight: 600;
   color: $text-primary;
   text-align: center;
@@ -758,7 +756,7 @@ const toggleSection = (key: string) => {
 }
 
 .leader-badge-label {
-  font-size: $font-sm;
+  font-size: $font-md;
   color: $text-secondary;
   flex: 1;
 }
@@ -790,7 +788,7 @@ const toggleSection = (key: string) => {
 }
 
 .role-name {
-  font-size: $font-md;
+  font-size: $font-lg;
   font-weight: 500;
   color: $text-primary;
   display: block;
@@ -798,7 +796,7 @@ const toggleSection = (key: string) => {
 }
 
 .role-desc {
-  font-size: $font-sm;
+  font-size: $font-md;
   color: $text-secondary;
   line-height: 1.6;
   display: block;
@@ -811,7 +809,7 @@ const toggleSection = (key: string) => {
 }
 
 .step-number {
-  font-size: $font-md;
+  font-size: $font-lg;
   font-weight: bold;
   color: $text-primary;
   display: block;
@@ -819,14 +817,14 @@ const toggleSection = (key: string) => {
 }
 
 .step-content {
-  font-size: $font-sm;
+  font-size: $font-md;
   color: $text-secondary;
   line-height: 1.8;
   display: block;
 }
 
 .condition-title {
-  font-size: $font-md;
+  font-size: $font-lg;
   font-weight: bold;
   color: $text-primary;
   display: block;
@@ -834,7 +832,7 @@ const toggleSection = (key: string) => {
 }
 
 .condition-item {
-  font-size: $font-sm;
+  font-size: $font-md;
   color: $text-secondary;
   line-height: 1.8;
   display: block;
@@ -864,7 +862,7 @@ const toggleSection = (key: string) => {
 
   .table-cell {
     padding: $spacing-sm;
-    font-size: $font-xs;
+    font-size: $font-sm;
     color: $text-primary;
     display: flex;
     align-items: center;
@@ -915,14 +913,14 @@ const toggleSection = (key: string) => {
   flex: 1;
   text-align: center;
   padding: $spacing-sm;
-  font-size: $font-xs;
+  font-size: $font-sm;
   color: $text-primary;
 }
 
 .table-note {
   display: block;
   margin-top: $spacing-xs;
-  font-size: $font-xs;
+  font-size: $font-sm;
   color: $text-secondary;
   font-style: italic;
 }
@@ -935,7 +933,7 @@ const toggleSection = (key: string) => {
 }
 
 .tip-title {
-  font-size: $font-md;
+  font-size: $font-lg;
   font-weight: bold;
   color: $text-primary;
   display: block;
@@ -943,7 +941,7 @@ const toggleSection = (key: string) => {
 }
 
 .tip-item {
-  font-size: $font-sm;
+  font-size: $font-md;
   color: $text-secondary;
   line-height: 1.8;
   display: block;
@@ -953,7 +951,7 @@ const toggleSection = (key: string) => {
 
 // 角色详解样式
 .section-subtitle {
-  font-size: $font-md;
+  font-size: $font-lg;
   font-weight: 600;
   color: $text-primary;
   display: block;
@@ -1002,7 +1000,7 @@ const toggleSection = (key: string) => {
 }
 
 .role-loyalty {
-  font-size: $font-xs;
+  font-size: $font-sm;
   padding: 4rpx 12rpx;
   border-radius: $radius-small;
 
@@ -1023,7 +1021,7 @@ const toggleSection = (key: string) => {
 }
 
 .role-description {
-  font-size: $font-sm;
+  font-size: $font-md;
   color: $text-secondary;
   line-height: 1.7;
   display: block;
@@ -1037,14 +1035,14 @@ const toggleSection = (key: string) => {
 }
 
 .tips-title {
-  font-size: $font-sm;
+  font-size: $font-md;
   font-weight: 600;
   color: $text-primary;
   margin-bottom: 4rpx;
 }
 
 .tips-item {
-  font-size: $font-xs;
+  font-size: $font-sm;
   color: $text-secondary;
   line-height: 1.6;
   padding-left: $spacing-xs;

@@ -48,8 +48,6 @@
       </view>
     </template>
 
-    <!-- 底部导航栏 -->
-    <TabBar />
   </view>
 </template>
 
@@ -58,7 +56,6 @@ import { ref, computed, onMounted } from 'vue';
 import { useMainStore } from '@/store';
 import { socket } from '@/api/socket';
 import AchievementCard from '@/components/achievements/AchievementCard.vue';
-import TabBar from '@/components/TabBar.vue';
 
 interface Achievement {
   id: string;

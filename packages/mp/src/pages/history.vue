@@ -26,8 +26,6 @@
       </view>
     </template>
 
-    <!-- 底部导航栏 -->
-    <TabBar />
   </view>
 </template>
 
@@ -36,7 +34,6 @@ import { ref, onMounted } from 'vue';
 import { useMainStore } from '@/store';
 import { socket } from '@/api/socket';
 import GameHistoryCard from '@/components/history/GameHistoryCard.vue';
-import TabBar from '@/components/TabBar.vue';
 
 interface GameResult {
   winner?: 'good' | 'evil';

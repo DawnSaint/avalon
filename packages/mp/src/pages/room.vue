@@ -357,7 +357,11 @@ onUnmounted(() => {
 
 // 页面卸载时离开房间
 onUnload(() => {
-  if (roomUuid.value) {
+  if (roomUuid.value && store.profile?.id) {
+    // 如果游戏未开始，调用 leaveGame 从玩家列表中移除
+    if (roomState.value && (roomState.value.stage === 'created' || roomState.value.stage === 'locked')) {
+      socket.emit('leaveGame', roomUuid.value);
+    }
     socket.emit('leaveRoom', roomUuid.value);
   }
 });
@@ -383,7 +387,11 @@ const handleStartGame = () => {
 
 // 返回大厅
 const handleBackToLobby = () => {
-  if (roomUuid.value) {
+  if (roomUuid.value && store.profile?.id) {
+    // 如果游戏未开始，调用 leaveGame 从玩家列表中移除
+    if (roomState.value && (roomState.value.stage === 'created' || roomState.value.stage === 'locked')) {
+      socket.emit('leaveGame', roomUuid.value);
+    }
     socket.emit('leaveRoom', roomUuid.value);
   }
   uni.navigateTo({

@@ -51,13 +51,15 @@ export class Room {
       this.players.splice(userIndex, 1);
     }
 
+    // Check if room is empty after player leaves
+    if (this.players.length === 0) {
+      this.destroyRoom();
+      return;
+    }
+
+    // If leader left, assign new leader
     if (userID === this.leaderID) {
-      if (this.players.length === 0) {
-        this.destroyRoom();
-        return;
-      } else {
-        this.leaderID = this.players[0];
-      }
+      this.leaderID = this.players[0];
     }
 
     this.updateRoomState();

@@ -31,5 +31,27 @@
 		"navigationBarTitleText": "",
 		"navigationBarBackgroundColor": "#CFD8DC",
 		"backgroundColor": "#CFD8DC"
+	},
+	"tabBar": {
+		"borderStyle": "black",
+		"backgroundColor": "#CFD8DC",
+		"fontSize": "16px",
+		"height": "60px",
+		"blurEffect": "dark",
+		"selectedColor": "#82B1FF",
+		"list": [
+			{
+				"pagePath": "pages/index",
+				"text": "主页"
+			},
+			{
+				"pagePath": "pages/wiki",
+				"text": "规则"
+			},
+			{
+				"pagePath": "pages/profile",
+				"text": "接口"
+			}
+		]
 	}
 }

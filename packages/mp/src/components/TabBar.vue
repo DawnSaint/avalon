@@ -23,7 +23,7 @@ interface TabItem {
 
 const tabs: TabItem[] = [
   { label: '主页', path: '/pages/index' },
-  { label: 'Wiki', path: '/pages/wiki' },
+  { label: '规则', path: '/pages/wiki' },
   { label: '个人', path: '/pages/profile' }
 ];
 
@@ -51,13 +51,13 @@ const handleTabClick = (path: string) => {
 <style scoped lang="scss">
 @import '@/styles/theme.scss';
 
-.tabbar {
+.tabbar { 
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 100rpx;
-  border-top: 1rpx solid rgba(0, 0, 0, 0.1);
+  height: 120rpx;
+  border-top: 1rpx solid rgba(0, 0, 0, 0.32);
   display: flex;
   align-items: center;
   justify-content: space-around;
@@ -70,7 +70,7 @@ const handleTabClick = (path: string) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  height: 120rpx;
   transition: opacity $transition-normal;
 }
 
@@ -79,7 +79,7 @@ const handleTabClick = (path: string) => {
 }
 
 .tab-label {
-  font-size: $font-md;
+  font-size: $font-lg;
   color: $text-secondary;
   font-weight: 500;
 }
