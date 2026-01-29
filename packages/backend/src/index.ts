@@ -32,7 +32,6 @@ connectDB().then(async (mongoose) => {
   // Start the rating scheduler (will initialize ratings if needed)
   await ratingScheduler.start();
   console.log('Rating system initialized and scheduler started');
-  console.log('WebSocket server ready (compatible with uni-app)');
 });
 
 server.listen(3000, () => {

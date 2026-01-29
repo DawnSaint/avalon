@@ -38,5 +38,4 @@ export class MPUserForUI extends MPUserPublicProfile {}
 export interface MPUserWithToken extends MPUserForUI {
   token: string;
   userType: 'miniprogram';
-  knownAchievements?: string[];
 }

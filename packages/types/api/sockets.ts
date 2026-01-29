@@ -21,7 +21,15 @@ import type { TAssassinateType } from '../game/addons';
 
 import type { TRoomsList, TMessage } from '../room';
 import { TTotalWinrateStats, RoleRating, Achievement, UserAchievement, AchievementStats } from '../stats';
-import { UserForUI, UserProfile, IAvatarInfo, PublicUserProfile, UserWithToken, MPUserForUI, MPUserWithToken } from '../user';
+import {
+  UserForUI,
+  UserProfile,
+  IAvatarInfo,
+  PublicUserProfile,
+  UserWithToken,
+  MPUserForUI,
+  MPUserWithToken,
+} from '../user';
 
 export interface AchievementResponse {
   success: boolean;
@@ -55,7 +63,6 @@ export interface ServerToClientEvents {
   renewJWT: () => void;
   achievementUnlocked: (achievementId: string) => void;
   achievementProgress: (data: { achievementID: string; currentProgress: number; requirement: number }) => void;
-  hiddenAchievementsList: (achievements: string[]) => void;
 }
 
 export interface ClientToServerUserEvents {
@@ -83,7 +90,7 @@ export interface ClientToServerMPUserEvents {
   mpWechatLogin: (
     code: string,
     userInfo: { nickname?: string; avatarUrl?: string; unionid?: string },
-    callback: (user: MPUserWithToken | { error: string }) => void
+    callback: (user: MPUserWithToken | { error: string }) => void,
   ) => void;
 
   getMPUserProfile: (id: string, callback: (user: MPUserForUI | null) => void) => void;
@@ -95,7 +102,10 @@ export interface ClientToServerMPUserEvents {
   devMPLogin: (callback: (user: MPUserWithToken | { error: string }) => void) => void;
 }
 
-export interface ClientToServerEvents extends ClientToServerUserEvents, ClientToServerMPUserEvents, TrueSkillSocketEvents {
+export interface ClientToServerEvents
+  extends ClientToServerUserEvents,
+    ClientToServerMPUserEvents,
+    TrueSkillSocketEvents {
   getTotalStats: (callback: (stats: TTotalWinrateStats) => void) => void;
   getPlayerGames: (uuid: string, callback: (games: VisualGameState[]) => void) => void;
   getRoomsList: (callback: (list: TRoomsList) => void) => void;

@@ -8,7 +8,7 @@ import type {
   TUserState,
   TAlerts,
   TAlertsName,
-  Dictionary
+  Dictionary,
 } from '@/types';
 
 interface State {
@@ -73,7 +73,6 @@ function getDevProfile(): UserWithToken | null {
     avatar: 'servant',
     token: 'dev-token-temp', // 临时标记，会在 socket 连接后自动替换
     userType: 'miniprogram',
-    knownAchievements: []
   };
 
   return tempProfile;
@@ -87,13 +86,13 @@ export const useMainStore = defineStore('main', {
     hideSpoilers: false,
     connect: null,
     alerts: getStorageData<TAlerts>(alertStoragePath, {}),
-    fontLoaded: false
+    fontLoaded: false,
   }),
 
   getters: {
     isLoggedIn: (state) => !!state.profile,
     userName: (state) => state.profile?.name || '',
-    userAvatar: (state) => state.profile?.avatar || ''
+    userAvatar: (state) => state.profile?.avatar || '',
   },
 
   actions: {
@@ -143,21 +142,6 @@ export const useMainStore = defineStore('main', {
       this.connect = value;
     },
 
-    // 更新用户成就
-    updateUserAchievements(achievementNameOrArray: string | string[]) {
-      if (this.profile) {
-        this.profile.knownAchievements = this.profile.knownAchievements || [];
-
-        if (Array.isArray(achievementNameOrArray)) {
-          this.profile.knownAchievements = achievementNameOrArray;
-        } else if (!this.profile.knownAchievements.includes(achievementNameOrArray)) {
-          this.profile.knownAchievements.push(achievementNameOrArray);
-        }
-
-        setStorageData(userProfilePath, this.profile);
-      }
-    },
-
     // 更新隐藏剧透设置
     updateHideSpoilers(value: boolean) {
       this.hideSpoilers = value;
@@ -181,11 +165,7 @@ export const useMainStore = defineStore('main', {
 
     // 微信登录（小程序专用）
     async wechatLogin(code: string, userInfo?: { nickname?: string; avatarUrl?: string; unionid?: string }) {
-      const user = await socket.emitWithAck<MPUserWithToken | { error: string }>(
-        'mpWechatLogin',
-        code,
-        userInfo || {}
-      );
+      const user = await socket.emitWithAck<MPUserWithToken | { error: string }>('mpWechatLogin', code, userInfo || {});
 
       if (user && !('error' in user)) {
         // MPUserWithToken 兼容 UserWithToken 接口，可以直接使用
@@ -278,8 +258,8 @@ export const useMainStore = defineStore('main', {
       }
 
       return this.users[uuid];
-    }
-  }
+    },
+  },
 });
 
 // 监听 Socket 事件
@@ -314,12 +294,38 @@ socket.on('renewJWT', () => {
   store.clearUserProfile();
 });
 
+const ACHIEVEMENT_NAMES: Record<string, string> = {
+  light_wins: '除了恐惧本身，别无所惧！',
+  dark_wins: '黑暗的降临',
+  all_standard_roles: '全能高手',
+  different_player_count: '人生是一连串的选择',
+  assassin_kills: '我看到死去的人。',
+  secret_hunter: '秘密猎人',
+  undercover_agent: '卧底特工',
+  useless_role: '这角色有啥用',
+  still_worthy: '依然值得',
+  detective: '侦探',
+  mistakes_happen: '失误难免',
+  serial_killer: '连环杀手',
+  wrong_choice: '错误的选择',
+  bodyguard: '保镖',
+  seer: '先知',
+};
+
 socket.on('achievementUnlocked', (achievementID: string) => {
-  const store = useMainStore();
-  store.updateUserAchievements(achievementID);
+  const achievementName = ACHIEVEMENT_NAMES[achievementID] || achievementID;
+  uni.showToast({
+    title: `${achievementName}`,
+    icon: 'success',
+    duration: 3000,
+  });
 });
 
-socket.on('hiddenAchievementsList', (achievements: string[]) => {
-  const store = useMainStore();
-  store.updateUserAchievements(achievements);
+socket.on('achievementProgress', (data: { achievementID: string; currentProgress: number; requirement: number }) => {
+  const achievementName = ACHIEVEMENT_NAMES[data.achievementID] || data.achievementID;
+  uni.showToast({
+    title: `${achievementName} ${data.currentProgress}/${data.requirement}`,
+    icon: 'none',
+    duration: 2000,
+  });
 });

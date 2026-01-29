@@ -11,7 +11,6 @@ export interface UserWithToken {
   email?: string;
   avatar?: string;
   token: string;
-  knownAchievements?: string[];
 }
 
 export interface MPUserWithToken {
@@ -20,7 +19,6 @@ export interface MPUserWithToken {
   avatar: string;
   token: string;
   userType: 'miniprogram';
-  knownAchievements?: string[];
 }
 
 export interface PublicUserProfile {

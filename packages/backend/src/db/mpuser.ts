@@ -2,8 +2,6 @@ import { randomBytes } from 'crypto';
 import { MPUserForUI, MPUserWithToken } from '@avalon/types';
 import { mpUserModel, userAchievementModel } from '@/db/models';
 import { generateMPUserJWT } from '@/user/mpuser-helpers';
-import { AchievementType } from '@avalon/types/stats/achievements';
-import { achievementsData } from '@/achievements/data';
 
 export class MPUserLayer {
   /**
@@ -14,7 +12,7 @@ export class MPUserLayer {
    */
   async wechatLogin(
     openid: string,
-    userInfo?: { nickname?: string; avatarUrl?: string; unionid?: string }
+    userInfo?: { nickname?: string; avatarUrl?: string; unionid?: string },
   ): Promise<MPUserWithToken | { error: string }> {
     try {
       let user = await mpUserModel.findOne({ wechatOpenid: openid });
@@ -41,15 +39,12 @@ export class MPUserLayer {
         await user.save();
       }
 
-      const knownAchievements = await this.getUserCompletedAchievements(user.id, 'hidden');
-
       return {
         id: user.id,
         name: user.name,
         avatar: user.avatar,
         token: generateMPUserJWT({ id: user.id, name: user.name, avatar: user.avatar }),
         userType: 'miniprogram',
-        knownAchievements,
       };
     } catch (err) {
       console.error('Mini-program WeChat login error:', err);
@@ -120,25 +115,14 @@ export class MPUserLayer {
   /**
    * 获取用户完成的成就列表
    * @param userID 用户ID
-   * @param type 成就类型（'hidden' 仅返回隐藏成就）
    * @returns 成就ID列表
    */
-  async getUserCompletedAchievements(userID: string, type?: 'hidden'): Promise<string[]> {
+  async getUserCompletedAchievements(userID: string): Promise<string[]> {
     const userAchievements = await userAchievementModel.find({
       userID: userID,
       completed: true,
     });
 
-    if (type !== 'hidden') {
-      return userAchievements.map((el) => el.achievementID);
-    }
-
-    return userAchievements.reduce<string[]>((acc, el) => {
-      if (achievementsData.find((data) => data.type === AchievementType.HIDDEN && data.id === el.achievementID)) {
-        acc.push(el.achievementID);
-      }
-
-      return acc;
-    }, []);
+    return userAchievements.map((el) => el.achievementID);
   }
 }

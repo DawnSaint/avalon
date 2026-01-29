@@ -2,8 +2,6 @@ import bcrypt from 'bcrypt';
 import { ArgumentOfCallback, PublicUserProfile, UserFeatures, UserForUI, UserProfile } from '@avalon/types';
 import { userFeaturesModel, userProfileModel, userAchievementModel } from '@/db/models';
 import { generateJWT } from '@/user';
-import { AchievementType } from '@avalon/types/stats/achievements';
-import { achievementsData } from '@/achievements/data';
 
 export class UserLayer {
   hashRounds = 12;
@@ -38,7 +36,6 @@ export class UserLayer {
     return {
       ...userForUi,
       token: generateJWT(userForUi),
-      knownAchievements: [],
     };
   }
 
@@ -167,32 +164,19 @@ export class UserLayer {
       avatar: user.avatar,
     };
 
-    const knownAchievements = await this.getUserCompletedAchievements(user.id, 'hidden');
-
     return {
       ...userForUi,
       token: generateJWT(userForUi),
-      knownAchievements,
     };
   }
 
-  async getUserCompletedAchievements(userID: string, type?: 'hidden'): Promise<string[]> {
+  async getUserCompletedAchievements(userID: string): Promise<string[]> {
     const userAchievements = await userAchievementModel.find({
       userID: userID,
       completed: true,
     });
 
-    if (type !== 'hidden') {
-      return userAchievements.map((el) => el.achievementID);
-    }
-
-    return userAchievements.reduce<string[]>((acc, el) => {
-      if (achievementsData.find((data) => data.type === AchievementType.HIDDEN && data.id === el.achievementID)) {
-        acc.push(el.achievementID);
-      }
-
-      return acc;
-    }, []);
+    return userAchievements.map((el) => el.achievementID);
   }
 
   async validateUserPassword(user: UserProfile, password: string): Promise<boolean> {
@@ -236,12 +220,9 @@ export class UserLayer {
       avatar: user.avatar,
     };
 
-    const knownAchievements = await this.getUserCompletedAchievements(user.id, 'hidden');
-
     return {
       ...userForUi,
       token: generateJWT(userForUi),
-      knownAchievements,
     };
   }
 }

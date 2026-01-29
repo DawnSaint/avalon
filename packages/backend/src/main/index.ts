@@ -228,10 +228,6 @@ export class Manager {
               userState.userID = tokenValue.id;
               userState.userType = 'regular';
             }
-
-            this.dbManager.getUserCompletedAchievements(userState.userID, 'hidden').then((achievements) => {
-              socket.emit('hiddenAchievementsList', achievements);
-            });
           } catch (e) {
             socket.emit('renewJWT');
           }
@@ -350,7 +346,6 @@ export class Manager {
               ...profile,
               token,
               userType: 'miniprogram' as const,
-              knownAchievements: [],
             });
           } else {
             cb({ error: 'devUserNotFound' });

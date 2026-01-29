@@ -22,32 +22,14 @@
         </view>
       </view>
 
-      <!-- 公开成就 -->
+      <!-- 全部成就 -->
       <view class="achievements-section">
-        <text class="section-title">公开成就</text>
+        <text class="section-title">全部成就</text>
         <view class="achievements-list">
-          <AchievementCard
-            v-for="achievement in openAchievements"
-            :key="achievement.id"
-            :achievement="achievement"
-          />
-        </view>
-      </view>
-
-      <!-- 隐藏成就 -->
-      <view class="achievements-section">
-        <text class="section-title">隐藏成就</text>
-        <view class="achievements-list">
-          <AchievementCard
-            v-for="achievement in hiddenAchievements"
-            :key="achievement.id"
-            :achievement="achievement"
-            :is-hidden="true"
-          />
+          <AchievementCard v-for="achievement in achievements" :key="achievement.id" :achievement="achievement" />
         </view>
       </view>
     </template>
-
   </view>
 </template>
 
@@ -59,7 +41,6 @@ import AchievementCard from '@/components/achievements/AchievementCard.vue';
 
 interface Achievement {
   id: string;
-  type: 'open' | 'hidden';
   requirement: number;
   metadata?: Record<string, unknown>;
 }
@@ -73,7 +54,6 @@ interface UserAchievement {
 
 interface AchievementData {
   id: string;
-  type: 'open' | 'hidden';
   completed: boolean;
   progress: {
     currentValue: number;
@@ -96,7 +76,7 @@ const fetchAchievements = async () => {
 
     const [achievementsResponse, userAchievementsResponse] = await Promise.all([
       socket.emitWithAck('getAllAchievements'),
-      socket.emitWithAck('getUserAchievements', store.profile.id)
+      socket.emitWithAck('getUserAchievements', store.profile.id),
     ]);
 
     if (achievementsResponse?.success && userAchievementsResponse?.success) {
@@ -104,20 +84,17 @@ const fetchAchievements = async () => {
       const userAchievements = userAchievementsResponse.userAchievements || [];
 
       achievements.value = allAchievements.map((achievement: Achievement) => {
-        const userAchievement = userAchievements.find(
-          (ua: UserAchievement) => ua.achievementID === achievement.id
-        );
+        const userAchievement = userAchievements.find((ua: UserAchievement) => ua.achievementID === achievement.id);
 
         return {
           id: achievement.id,
-          type: achievement.type,
           completed: userAchievement?.completed || false,
           progress: {
             currentValue: userAchievement?.currentProgress || 0,
-            maxValue: achievement.requirement
+            maxValue: achievement.requirement,
           },
           metadata: achievement.metadata,
-          state: (userAchievement?.state as Record<string, boolean>) || {}
+          state: (userAchievement?.state as Record<string, boolean>) || {},
         };
       });
     }
@@ -125,7 +102,7 @@ const fetchAchievements = async () => {
     console.error('Failed to fetch achievements:', error);
     uni.showToast({
       title: '获取成就失败',
-      icon: 'none'
+      icon: 'none',
     });
   } finally {
     loading.value = false;
@@ -133,16 +110,8 @@ const fetchAchievements = async () => {
 };
 
 // 计算属性
-const openAchievements = computed(() => {
-  return achievements.value.filter(a => a.type === 'open');
-});
-
-const hiddenAchievements = computed(() => {
-  return achievements.value.filter(a => a.type === 'hidden');
-});
-
 const completedCount = computed(() => {
-  return achievements.value.filter(a => a.completed).length;
+  return achievements.value.filter((a) => a.completed).length;
 });
 
 const totalCount = computed(() => {

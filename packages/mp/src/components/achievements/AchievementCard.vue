@@ -2,8 +2,7 @@
   <view
     class="achievement-card"
     :class="{
-      'achievement-card--locked': !achievement.completed && isHidden,
-      'achievement-card--completed': achievement.completed
+      'achievement-card--completed': achievement.completed,
     }"
   >
     <view class="achievement-icon">
@@ -17,10 +16,7 @@
       <!-- 进度条 -->
       <view v-if="shouldShowProgress" class="achievement-progress">
         <view class="progress-bar">
-          <view
-            class="progress-fill"
-            :style="{ width: progressPercentage + '%' }"
-          ></view>
+          <view class="progress-fill" :style="{ width: progressPercentage + '%' }"></view>
         </view>
         <text class="progress-text">
           {{ achievement.progress.currentValue }} / {{ achievement.progress.maxValue }}
@@ -74,7 +70,6 @@ import { useMainStore } from '@/store';
 interface Props {
   achievement: {
     id: string;
-    type: 'open' | 'hidden';
     completed: boolean;
     progress: {
       currentValue: number;
@@ -86,12 +81,9 @@ interface Props {
     };
     state?: Record<string, boolean>;
   };
-  isHidden?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  isHidden: false
-});
+const props = defineProps<Props>();
 
 const store = useMainStore();
 
@@ -102,17 +94,16 @@ const ACHIEVEMENTS_CONFIG: Record<string, { name: string; description: string }>
   all_standard_roles: { name: '全能高手', description: '使用所有标准角色获胜' },
   different_player_count: { name: '人生是一连串的选择', description: '在5-10人游戏中获胜' },
   assassin_kills: { name: '我看到死去的人。', description: '作为刺客成功刺杀梅林5次' },
-  top_player: { name: '冠军', description: '在任何角色中获得第一名' },
   secret_hunter: { name: '秘密猎人', description: '在网站上找到秘密' },
-  undercover_agent: { name: '???', description: '???' },
-  useless_role: { name: '???', description: '???' },
-  still_worthy: { name: '???', description: '???' },
-  detective: { name: '???', description: '???' },
-  mistakes_happen: { name: '???', description: '???' },
-  serial_killer: { name: '???', description: '???' },
-  wrong_choice: { name: '???', description: '???' },
-  bodyguard: { name: '???', description: '???' },
-  seer: { name: '???', description: '???' }
+  undercover_agent: { name: '卧底特工', description: '作为梅林选择莫甘娜参加任务2次后赢得游戏' },
+  useless_role: { name: '这角色有啥用', description: '作为牧师5次执行第一次任务' },
+  still_worthy: { name: '依然值得', description: '在第5次任务中使用圣剑并作为好人赢得游戏' },
+  detective: { name: '侦探', description: '作为梅林使用湖中仙女查验莫德雷德' },
+  mistakes_happen: { name: '失误难免', description: '在任务中所有坏人都按了失败' },
+  serial_killer: { name: '连环杀手', description: '至少各刺杀一次梅林、牧师和情侣' },
+  wrong_choice: { name: '错误的选择', description: '作为莫甘娜参加3次失败的任务' },
+  bodyguard: { name: '保镖', description: '作为派西维尔被刺客射击' },
+  seer: { name: '先知', description: '作为忠臣组建所有任务队伍都没有坏人' },
 };
 
 // 角色名称映射
@@ -123,21 +114,13 @@ const ROLE_NAMES: Record<string, string> = {
   mordred: '莫德雷德',
   morgana: '莫甘娜',
   oberon: '奥伯伦',
-  minion: '爪牙'
+  minion: '爪牙',
 };
 
 // 计算属性
 const achievementName = computed(() => {
   const config = ACHIEVEMENTS_CONFIG[props.achievement.id];
   if (!config) return props.achievement.id;
-
-  // 如果是隐藏成就且未解锁，检查是否在已知列表中
-  if (props.achievement.type === 'hidden' && !props.achievement.completed) {
-    const knownAchievements = store.profile?.knownAchievements || [];
-    if (!knownAchievements.includes(props.achievement.id)) {
-      return '???';
-    }
-  }
 
   return config.name;
 });
@@ -146,29 +129,18 @@ const achievementDescription = computed(() => {
   const config = ACHIEVEMENTS_CONFIG[props.achievement.id];
   if (!config) return '';
 
-  // 如果是隐藏成就且未解锁，检查是否在已知列表中
-  if (props.achievement.type === 'hidden' && !props.achievement.completed) {
-    const knownAchievements = store.profile?.knownAchievements || [];
-    if (!knownAchievements.includes(props.achievement.id)) {
-      return '???';
-    }
-  }
-
   return config.description;
 });
 
 const shouldShowProgress = computed(() => {
-  return !props.achievement.completed &&
-         props.achievement.progress.maxValue > 0 &&
-         (props.achievement.type === 'open' ||
-          store.profile?.knownAchievements?.includes(props.achievement.id));
+  return !props.achievement.completed && props.achievement.progress.maxValue > 0;
 });
 
 const progressPercentage = computed(() => {
   if (props.achievement.progress.maxValue === 0) return 0;
   return Math.min(
     100,
-    Math.round((props.achievement.progress.currentValue / props.achievement.progress.maxValue) * 100)
+    Math.round((props.achievement.progress.currentValue / props.achievement.progress.maxValue) * 100),
   );
 });
 
@@ -181,15 +153,11 @@ const playerCountsMetadata = computed(() => {
 });
 
 const showRolesProgress = computed(() => {
-  return rolesMetadata.value.length > 0 &&
-         props.achievement.state &&
-         !props.achievement.completed;
+  return rolesMetadata.value.length > 0 && props.achievement.state && !props.achievement.completed;
 });
 
 const showPlayerCountsProgress = computed(() => {
-  return playerCountsMetadata.value.length > 0 &&
-         props.achievement.state &&
-         !props.achievement.completed;
+  return playerCountsMetadata.value.length > 0 && props.achievement.state && !props.achievement.completed;
 });
 
 const getRoleName = (role: string): string => {
@@ -209,11 +177,6 @@ const getRoleName = (role: string): string => {
   @include shadow-card;
   position: relative;
   transition: all $transition-normal;
-
-  &--locked {
-    opacity: 0.6;
-    filter: grayscale(50%);
-  }
 
   &--completed {
     border-left: 4rpx solid $success;

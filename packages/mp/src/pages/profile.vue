@@ -59,14 +59,13 @@
 
     <!-- 未登录状态 - 显示登录表单 -->
     <view v-else class="auth-container">
-
       <!-- 错误提示 -->
       <view v-if="loginError" class="error-message">
         <text>{{ loginError }}</text>
       </view>
 
       <!-- 微信登录 -->
-      <view class="form">
+      <view v-if="!showNicknameInput" class="form">
         <button
           class="wechat-login-btn"
           :class="{ disabled: loginLoading }"
@@ -76,8 +75,10 @@
           {{ loginLoading ? '登录中...' : '微信登录' }}
         </button>
       </view>
-    </view>
 
+      <!-- 昵称和头像设置 -->
+      <NicknameAvatarForm v-else ref="nicknameFormRef" :loading="loginLoading" @confirm="handleConfirmNickname" />
+    </view>
   </view>
 </template>
 
@@ -87,6 +88,7 @@ import { useMainStore } from '@/store';
 import { socket } from '@/api/socket';
 import HistoryView from '@/components/profile/HistoryView.vue';
 import AchievementsView from '@/components/profile/AchievementsView.vue';
+import NicknameAvatarForm from '@/components/NicknameAvatarForm.vue';
 
 const store = useMainStore();
 
@@ -97,6 +99,9 @@ const currentView = ref<ViewType>('profile');
 // 登录相关状态
 const loginLoading = ref(false);
 const loginError = ref('');
+const showNicknameInput = ref(false);
+const wechatCode = ref('');
+const nicknameFormRef = ref<InstanceType<typeof NicknameAvatarForm> | null>(null);
 
 // 统计信息相关状态
 const statsLoading = ref(true);
@@ -188,67 +193,74 @@ onMounted(() => {
   }
 });
 
-// 微信登录
+// 微信登录 - 第一步：获取授权码
 const handleWechatLogin = async () => {
   loginLoading.value = true;
   loginError.value = '';
 
   try {
-    // 1. 获取微信授权码
+    // 获取微信授权码
     const loginRes = await new Promise<any>((resolve, reject) => {
       uni.login({
         provider: 'weixin',
         success: resolve,
-        fail: reject
+        fail: reject,
       });
     });
 
     if (!loginRes.code) {
       loginError.value = '获取微信授权失败';
+      loginLoading.value = false;
       return;
     }
 
-    // 2. 获取微信用户信息
-    let userInfo = {};
-    try {
-      const userInfoRes = await new Promise<any>((resolve, reject) => {
-        uni.getUserInfo({
-          provider: 'weixin',
-          success: resolve,
-          fail: reject
-        });
-      });
+    // 保存授权码，显示昵称输入界面
+    wechatCode.value = loginRes.code;
+    showNicknameInput.value = true;
+    loginLoading.value = false;
+  } catch (e) {
+    console.error('WeChat login error:', e);
+    loginError.value = '微信登录失败，请稍后重试';
+    loginLoading.value = false;
+  }
+};
 
-      if (userInfoRes.userInfo) {
-        userInfo = {
-          nickname: userInfoRes.userInfo.nickName,
-          avatarUrl: userInfoRes.userInfo.avatarUrl,
-          // unionid 由后端从微信 API 获取
-        };
-      }
-    } catch (e) {
-      console.warn('Failed to get user info, using default:', e);
-    }
+// 确认昵称并完成登录
+const handleConfirmNickname = async (userInfo: { nickname: string; avatarUrl?: string }) => {
+  loginLoading.value = true;
+  loginError.value = '';
 
-    // 3. 发送到后端登录
-    const result = await store.wechatLogin(loginRes.code, userInfo);
+  try {
+    // 发送到后端登录
+    const result = await store.wechatLogin(wechatCode.value, userInfo);
 
     if (result && 'error' in result) {
-      loginError.value = result.error;
+      loginError.value = result.error === 'wechatAuthFailed' ? '微信授权失败，请重试' : result.error;
+      // 重置状态，让用户重新登录
+      showNicknameInput.value = false;
+      wechatCode.value = '';
+      nicknameFormRef.value?.reset();
     } else {
       // 登录成功
       uni.showToast({
         title: '登录成功',
         icon: 'success',
-        duration: 2000
+        duration: 2000,
       });
-      // 登录成功后会自动显示 profile 内容，因为 store.profile 已更新
+      // 重置临时数据
+      showNicknameInput.value = false;
+      wechatCode.value = '';
+      nicknameFormRef.value?.reset();
       // 获取统计数据
       initStats();
     }
   } catch (e) {
     console.error('WeChat login error:', e);
-    loginError.value = '微信登录失败，请稍后重试';
+    loginError.value = '登录失败，请稍后重试';
+    // 重置状态
+    showNicknameInput.value = false;
+    wechatCode.value = '';
+    nicknameFormRef.value?.reset();
   } finally {
     loginLoading.value = false;
   }
@@ -366,18 +378,16 @@ const handleBack = () => {
 }
 
 .winrate-medium {
-  color: #FF9800;
+  color: #ff9800;
 }
 
 .winrate-high {
   color: $success;
 }
 
-
 .menu-section {
   margin-top: $spacing-xl;
 }
-
 
 .menu-list {
   display: flex;

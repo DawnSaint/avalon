@@ -1,14 +1,6 @@
 import { prop, modelOptions, Severity } from '@typegoose/typegoose';
 
 /**
- * Типы достижений
- */
-export enum AchievementType {
-  OPEN = 'open', // Открытые достижения
-  HIDDEN = 'hidden', // Скрытые достижения
-}
-
-/**
  * Mongoose model for Achievement
  */
 @modelOptions({
@@ -22,9 +14,6 @@ export enum AchievementType {
 export class Achievement {
   @prop({ required: true, unique: true })
   id!: string; // Уникальный идентификатор достижения
-
-  @prop({ required: true, enum: AchievementType, default: AchievementType.OPEN })
-  type!: AchievementType; // Тип достижения (открытое/скрытое)
 
   @prop({ required: true, default: 0 })
   requirement!: number; // Требуемое значение для получения достижения
