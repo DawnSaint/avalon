@@ -6,18 +6,11 @@
     </view>
 
     <view class="selection-status">
-      <text class="status-text">
-        已选择: {{ selectedCount }}/{{ requiredPlayers }}
-      </text>
+      <text class="status-text"> 已选择: {{ selectedCount }}/{{ requiredPlayers }} </text>
     </view>
 
     <view class="action-buttons">
-      <button
-        class="send-btn"
-        :class="{ disabled: !canSend }"
-        :disabled="!canSend"
-        @click="handleSendTeam"
-      >
+      <button class="send-btn" :class="{ disabled: !canSend }" :disabled="!canSend" @click="handleSendTeam">
         {{ canSend ? '派遣队伍' : '请选择队员' }}
       </button>
     </view>
@@ -64,8 +57,6 @@ const handleSendTeam = () => {
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
 .team-selection-panel {
   padding: $spacing-lg $spacing-md;
   background-color: transparent;

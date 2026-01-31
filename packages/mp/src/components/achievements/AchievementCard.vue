@@ -5,10 +5,6 @@
       'achievement-card--completed': achievement.completed,
     }"
   >
-    <view class="achievement-icon">
-      <!-- Achievement icon -->
-    </view>
-
     <view class="achievement-content">
       <text class="achievement-name">{{ achievementName }}</text>
       <text class="achievement-description">{{ achievementDescription }}</text>
@@ -143,8 +139,6 @@ const getRoleName = (role: string): string => {
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
 .achievement-card {
   display: flex;
   gap: $spacing-md;
@@ -158,18 +152,6 @@ const getRoleName = (role: string): string => {
   &--completed {
     border-left: 4rpx solid $success;
   }
-}
-
-.achievement-icon {
-  flex-shrink: 0;
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 50%;
-  background: linear-gradient(135deg, $primary 0%, lighten($primary, 20%) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  @include shadow-elevated;
 }
 
 .icon-text {
@@ -210,7 +192,7 @@ const getRoleName = (role: string): string => {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, $primary 0%, lighten($primary, 15%) 100%);
+  background: linear-gradient(90deg, $primary 0%, color.adjust($primary, $lightness: 15%) 100%);
   transition: width $transition-normal;
 }
 

@@ -10,16 +10,6 @@
 
     <!-- 正常房间视图 -->
     <view v-else class="room-content">
-      <!-- 顶部栏 -->
-      <view class="top-bar">
-        <button class="top-bar-btn" @click="handleLeaveRoom">
-          <text class="top-bar-text">离开</text>
-        </button>
-        <button class="top-bar-btn" open-type="share">
-          <text class="top-bar-text">分享</text>
-        </button>
-      </view>
-
       <!-- 游戏棋盘区域 -->
       <view v-if="roomState" class="board-area">
         <!-- 游戏棋盘 -->
@@ -101,6 +91,16 @@
             <text v-if="roomState.options.addons.lady_of_lake" class="option-badge">湖中女神</text>
             <text v-if="roomState.options.addons.excalibur" class="option-badge">圣剑</text>
           </view>
+        </view>
+
+        <!-- 操作按钮 -->
+        <view class="action-buttons">
+          <button class="glass-btn" @click="handleLeaveRoom">
+            <text class="glass-btn-text">离开房间</text>
+          </button>
+          <button class="glass-btn" open-type="share">
+            <text class="glass-btn-text">分享邀请</text>
+          </button>
         </view>
       </view>
 
@@ -358,7 +358,7 @@ const handleBackToLobby = () => {
     }
     socket.emit('leaveRoom', roomUuid.value);
   }
-  uni.navigateTo({
+  uni.switchTab({
     url: '/pages/index',
   });
 };
@@ -378,8 +378,6 @@ const handleLeaveRoom = () => {
 
 // 处理玩家点击
 const handlePlayerClick = (playerId: string) => {
-  console.log('Player clicked:', playerId);
-
   // 游戏中的选择队伍阶段
   if (roomState.value?.stage === 'started' && gameState.value?.stage === 'selectTeam') {
     const currentPlayer = gameState.value.players.find((p) => p.id === store.profile?.id);
@@ -517,10 +515,11 @@ const handleMissionAction = (result: TMissionResult) => {
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
 .room {
-  padding-top: 160rpx;
+  padding-top: $spacing-header;
+  min-height: 100vh;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #355f96 0%, #34495e 35%, #533483 60%, #8b1a1a 100%);
 }
 
 .error-container {
@@ -547,40 +546,7 @@ const handleMissionAction = (result: TMissionResult) => {
 }
 
 .room-content {
-  padding: 120rpx 20rpx 40rpx;
-  position: relative;
-}
-
-.top-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 88rpx;
-  padding: 0 32rpx;
-  z-index: 1000;
-  border-bottom: 1rpx solid rgba(0, 0, 0, 0.1);
-}
-
-.top-bar-btn {
-  float: right;
-  background-color: transparent;
-  border: none;
-  border-radius: 0;
-  transition: opacity $transition-normal;
-}
-
-.top-bar-btn:active {
-  opacity: 0.6;
-}
-
-.top-bar-btn::after {
-  border: none;
-}
-
-.top-bar-text {
-  font-size: $font-md;
-  color: $text-secondary;
+  padding: 40rpx 20rpx 40rpx;
 }
 
 .board-area {
@@ -646,17 +612,23 @@ const handleMissionAction = (result: TMissionResult) => {
 }
 
 .host-btn {
-  padding: 4rpx 0;
-  background-color: transparent;
-  color: $text-white;
-  border-radius: 0;
-  border: none;
-  line-height: 1rem;
-  transition: opacity $transition-normal;
+  padding: 0;
+  margin: 0;
+  height: 88rpx;
+  min-width: 200rpx;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: $radius-large;
+  box-shadow: 0 8rpx 32rpx 0 rgba(0, 0, 0, 0.2);
+  transition: all $transition-normal;
+  line-height: 88rpx;
 }
 
 .host-btn:active {
-  opacity: 0.6;
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(2rpx);
 }
 
 .host-btn::after {
@@ -664,8 +636,10 @@ const handleMissionAction = (result: TMissionResult) => {
 }
 
 .host-text {
-  font-size: $font-lg;
-  font-weight: bold;
+  font-size: $font-md;
+  color: $text-white;
+  font-weight: 500;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
 }
 
 .back-btn {
@@ -699,5 +673,44 @@ const handleMissionAction = (result: TMissionResult) => {
 .loading-text {
   font-size: $font-lg;
   color: $text-disabled;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 24rpx;
+  padding: 40rpx 20rpx;
+  justify-content: center;
+}
+
+.glass-btn {
+  flex: 1;
+  max-width: 300rpx;
+  height: 88rpx;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: $radius-large;
+  box-shadow: 0 8rpx 32rpx 0 rgba(0, 0, 0, 0.2);
+  transition: all $transition-normal;
+  padding: 0;
+  margin: 0;
+  line-height: 88rpx;
+}
+
+.glass-btn:active {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(2rpx);
+}
+
+.glass-btn::after {
+  border: none;
+}
+
+.glass-btn-text {
+  font-size: $font-md;
+  color: $text-white;
+  font-weight: 500;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
 }
 </style>

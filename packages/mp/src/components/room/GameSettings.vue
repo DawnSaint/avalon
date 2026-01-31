@@ -46,7 +46,6 @@
             </view>
           </view>
         </view>
-
       </scroll-view>
 
       <view class="settings-footer">
@@ -77,17 +76,21 @@ const emit = defineEmits<{
 const localOptions = ref<GameOptions>({
   roles: { ...props.options.roles },
   addons: { ...props.options.addons },
-  features: { ...props.options.features }
+  features: { ...props.options.features },
 });
 
 // 监听 props 变化，更新本地副本
-watch(() => props.options, (newOptions) => {
-  localOptions.value = {
-    roles: { ...newOptions.roles },
-    addons: { ...newOptions.addons },
-    features: { ...newOptions.features }
-  };
-}, { deep: true });
+watch(
+  () => props.options,
+  (newOptions) => {
+    localOptions.value = {
+      roles: { ...newOptions.roles },
+      addons: { ...newOptions.addons },
+      features: { ...newOptions.features },
+    };
+  },
+  { deep: true },
+);
 
 // 角色配置
 const goodRoles = [
@@ -95,7 +98,7 @@ const goodRoles = [
   { key: 'percival', name: '派西维尔' },
   { key: 'guinevere', name: '桂妮薇儿' },
   { key: 'cleric', name: '牧师' },
-  { key: 'revealer', name: '揭示者' }
+  { key: 'revealer', name: '揭示者' },
 ];
 
 const evilRoles = [
@@ -104,7 +107,7 @@ const evilRoles = [
   { key: 'oberon', name: '奥伯伦' },
   { key: 'witch', name: '女巫' },
   { key: 'brute', name: '蛮族' },
-  { key: 'lunatic', name: '疯子' }
+  { key: 'lunatic', name: '疯子' },
 ];
 
 // 扩展配置
@@ -112,30 +115,29 @@ const addons = [
   {
     key: 'lady_of_lake',
     name: '湖中女神',
-    desc: '可以查看其他玩家的阵营'
+    desc: '可以查看其他玩家的阵营',
   },
   {
     key: 'excalibur',
     name: '圣剑',
-    desc: '领袖可以使用圣剑强制任务成功'
+    desc: '领袖可以使用圣剑强制任务成功',
   },
   {
     key: 'lady_of_sea',
     name: '海之女神',
-    desc: '湖中女神的变体版本'
+    desc: '湖中女神的变体版本',
   },
   {
     key: 'plot_cards',
     name: '阴谋卡牌',
-    desc: '增加特殊能力卡牌'
-  }
+    desc: '增加特殊能力卡牌',
+  },
 ];
 
 // 切换角色
 const toggleRole = (roleKey: keyof GameOptionsRoles) => {
   localOptions.value.roles[roleKey] = !localOptions.value.roles[roleKey];
 };
-
 
 // 关闭
 const handleClose = () => {
@@ -148,15 +150,13 @@ const handleSave = () => {
   uni.showToast({
     title: '设置已保存',
     icon: 'success',
-    duration: 1500
+    duration: 1500,
   });
   emit('close');
 };
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
 .settings-overlay {
   position: fixed;
   top: 0;
@@ -173,7 +173,7 @@ const handleSave = () => {
 .settings-content {
   width: 100%;
   max-height: 90vh;
-  background-color: $bg-page;
+  background-color: $bg;
   border-radius: 0;
   display: flex;
   flex-direction: column;
@@ -450,12 +450,20 @@ const handleSave = () => {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 </style>

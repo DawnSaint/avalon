@@ -145,8 +145,6 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
 .achievements-view {
   min-height: 60vh;
   padding: $spacing-lg 0;
@@ -202,7 +200,7 @@ onMounted(() => {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, $primary 0%, lighten($primary, 15%) 100%);
+  background: linear-gradient(90deg, $primary 0%, color.adjust($primary, $lightness: 15%) 100%);
   transition: width $transition-normal;
 }
 

@@ -24,18 +24,13 @@
 
           <!-- 游戏中的操作 -->
           <view v-else class="action-section">
-
             <view class="hint-text">
               <text>注意：这些操作会影响正在进行的游戏</text>
             </view>
 
-            <button class="action-btn warning" @tap="handleEndGame">
-              结束游戏
-            </button>
+            <button class="action-btn warning" @tap="handleEndGame">结束游戏</button>
 
-            <button class="action-btn warning" @tap="handleRestartGame">
-              结束并重启
-            </button>
+            <button class="action-btn warning" @tap="handleRestartGame">结束并重启</button>
           </view>
         </view>
       </view>
@@ -75,7 +70,7 @@ const handleLockRoom = () => {
   uni.showToast({
     title: props.roomStage === 'created' ? '房间已锁定' : '房间已解锁',
     icon: 'success',
-    duration: 1500
+    duration: 1500,
   });
 };
 
@@ -98,10 +93,10 @@ const handleEndGame = () => {
         uni.showToast({
           title: '游戏已结束',
           icon: 'success',
-          duration: 1500
+          duration: 1500,
         });
       }
-    }
+    },
   });
 };
 
@@ -118,17 +113,15 @@ const handleRestartGame = () => {
         uni.showToast({
           title: '正在重启游戏',
           icon: 'loading',
-          duration: 1500
+          duration: 1500,
         });
       }
-    }
+    },
   });
 };
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
 .host-panel {
   position: relative;
 }
@@ -158,7 +151,7 @@ const handleRestartGame = () => {
 .panel-content {
   width: 100%;
   max-height: 80vh;
-  background-color: $bg-page;
+  background-color: $bg;
   border-radius: 0;
   animation: slideUp 0.3s ease;
 }
@@ -214,7 +207,7 @@ const handleRestartGame = () => {
 
 .hint-text {
   padding: $spacing-md;
-  background-color: lighten($warning, 40%);
+  background-color: color.adjust($warning, $lightness: 40%);
   border-radius: $radius-medium;
   margin-bottom: 10rpx;
 }

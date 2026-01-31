@@ -2,11 +2,7 @@
   <view v-if="waitingPlayers.length > 0" class="waiting-indicator">
     <text class="indicator-label">等待中:</text>
     <view class="waiting-players">
-      <text
-        v-for="player in waitingPlayers"
-        :key="player.id"
-        class="player-name"
-      >
+      <text v-for="player in waitingPlayers" :key="player.id" class="player-name">
         {{ player.name }}
       </text>
     </view>
@@ -24,13 +20,11 @@ interface Props {
 const props = defineProps<Props>();
 
 const waitingPlayers = computed(() => {
-  return props.players.filter(p => p.features.waitForAction);
+  return props.players.filter((p) => p.features.waitForAction);
 });
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
 .waiting-indicator {
   padding: $spacing-md;
   background-color: rgba(0, 0, 0, 0.02);
@@ -63,7 +57,8 @@ const waitingPlayers = computed(() => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

@@ -8,21 +8,6 @@ onLaunch(() => {
   // 初始化 store
   const store = useMainStore();
 
-  // 预加载字体
-  uni.loadFontFace({
-    family: 'Overt',
-    source: 'url("/static/Overt.ttf")',
-    success: () => {
-      console.log('Overt font loaded successfully');
-      store.setFontLoaded(true);
-    },
-    fail: (err) => {
-      console.error('Failed to load Overt font:', err);
-      // 即使加载失败也允许显示（使用回退字体）
-      store.setFontLoaded(true);
-    },
-  });
-
   // 检查用户登录状态
   if (store.profile) {
     console.log('User logged in:', store.profile.name);
@@ -49,24 +34,12 @@ onHide(() => {
 }
 
 /* 全局样式 */
-uni-page {
-  background-color: #cfd8dc;
-  position: fixed;
-  padding-top: 80rpx;
+uni-page,
+page {
+  background-color: $bg;
   box-sizing: border-box;
   font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
     'Helvetica Neue', sans-serif;
-}
-
-/* 重置按钮样式 */
-button {
-  padding: 0;
-  margin: 0;
-  line-height: normal;
-}
-
-button::after {
-  border: none;
 }
 </style>

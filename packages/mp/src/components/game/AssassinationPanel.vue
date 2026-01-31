@@ -90,8 +90,6 @@ const handleAssassinate = () => {
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
 .assassination-panel {
   padding: $spacing-lg $spacing-md;
   background-color: transparent;

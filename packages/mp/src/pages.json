@@ -1,57 +1,56 @@
 {
-	"pages": [
-		{
-			"path": "pages/index",
-			"style": {
-				"navigationStyle": "custom"
-			}
-		},
-		{
-			"path": "pages/profile",
-			"style": {
-				"navigationStyle": "custom"
-			}
-		},
-		{
-			"path": "pages/room",
-			"style": {
-				"navigationStyle": "custom"
-			}
-		},
-		{
-			"path": "pages/wiki",
-			"style": {
-				"navigationStyle": "custom"
-			}
-		}
-	],
-	"globalStyle": {
-		"navigationStyle": "custom",
-		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "",
-		"navigationBarBackgroundColor": "#CFD8DC",
-		"backgroundColor": "#CFD8DC"
-	},
-	"tabBar": {
-		"borderStyle": "black",
-		"backgroundColor": "#CFD8DC",
-		"fontSize": "16px",
-		"height": "60px",
-		"blurEffect": "dark",
-		"selectedColor": "#82B1FF",
-		"list": [
-			{
-				"pagePath": "pages/index",
-				"text": "主页"
-			},
-			{
-				"pagePath": "pages/wiki",
-				"text": "规则"
-			},
-			{
-				"pagePath": "pages/profile",
-				"text": "接口"
-			}
-		]
-	}
+  "pages": [
+    {
+      "path": "pages/index",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/profile",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/room",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/wiki",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#FFFFFF"
+  },
+  "tabBar": {
+    "color": "#666666",
+    "backgroundColor": "#FFFFFF",
+    "fontSize": "12px",
+    "height": "60px",
+    "blurEffect": "dark",
+    "selectedColor": "#82B1FF",
+    "list": [
+      {
+        "pagePath": "pages/index",
+        "text": "主页"
+      },
+      {
+        "pagePath": "pages/wiki",
+        "text": "规则"
+      },
+      {
+        "pagePath": "pages/profile",
+        "text": "我的"
+      }
+    ]
+  }
 }

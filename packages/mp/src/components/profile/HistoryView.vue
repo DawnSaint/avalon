@@ -18,11 +18,7 @@
       </view>
 
       <view class="games-list">
-        <GameHistoryCard
-          v-for="game in games"
-          :key="game.uuid"
-          :game="game"
-        />
+        <GameHistoryCard v-for="game in games" :key="game.uuid" :game="game" />
       </view>
     </template>
   </view>
@@ -77,7 +73,7 @@ const fetchGameHistory = async () => {
     console.error('Failed to fetch game history:', error);
     uni.showToast({
       title: '获取战绩失败',
-      icon: 'none'
+      icon: 'none',
     });
   } finally {
     loading.value = false;
@@ -90,8 +86,6 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
 .history-view {
   min-height: 60vh;
   padding: $spacing-lg 0;

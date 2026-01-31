@@ -60,8 +60,6 @@ const players = computed(() => {
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
 .game-result-display {
   min-height: 100vh;
   padding: $spacing-xl $spacing-md;

@@ -1,8 +1,7 @@
 <template>
   <scroll-view class="wiki-page" scroll-y enable-back-to-top>
     <view class="wiki-container">
-      <text class="wiki-title">阿瓦隆规则指南</text>
-
+      <lobby-logo />
       <!-- 游戏简介 -->
       <view class="wiki-section">
         <view class="section-header" @click="toggleSection('intro')">
@@ -598,7 +597,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { getRoleImage, getImage } from '@/utils/roleImages';
-
+import LobbyLogo from '@/components/LobbyLogo.vue';
 // 折叠面板状态管理
 const expandedSections = ref<Record<string, boolean>>({
   intro: true, // 游戏简介默认展开
@@ -615,10 +614,7 @@ const toggleSection = (key: string) => {
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
 .wiki-page {
-  height: calc(100vh - 2.5rem - 120rpx);
   box-sizing: border-box;
 
   // 棋盘背景
@@ -641,22 +637,17 @@ const toggleSection = (key: string) => {
 }
 
 .wiki-container {
-  padding: 160rpx $spacing-lg $spacing-lg;
+  padding: $spacing-header $spacing-lg 0;
   position: relative;
-}
-
-.wiki-title {
-  font-size: $font-xxl;
-  font-weight: bold;
-  color: $text-primary;
-  display: block;
-  margin-bottom: 60rpx;
-  text-align: center;
 }
 
 .wiki-section {
   margin-bottom: $spacing-md;
   overflow: hidden;
+}
+
+.wiki-section:first-of-type {
+  margin-top: $spacing-xl;
 }
 
 .section-header {

@@ -3,11 +3,7 @@
     <!-- 玩家框架 -->
     <view class="player-frame">
       <!-- 玩家边框装饰 -->
-      <image
-        class="player-frame-image"
-        src="/static/images/core/player-frame.webp"
-        mode="aspectFit"
-      />
+      <image class="player-frame-image" src="/static/images/core/player-frame.webp" mode="aspectFit" />
 
       <!-- 玩家头像/图标 -->
       <view class="player-avatar">
@@ -15,12 +11,7 @@
       </view>
 
       <!-- 领袖标识 -->
-      <image
-        v-if="isLeader"
-        class="player-crown"
-        src="/static/images/core/crown.webp"
-        mode="aspectFit"
-      />
+      <image v-if="isLeader" class="player-crown" src="/static/images/core/crown.webp" mode="aspectFit" />
 
       <!-- 选中标识 -->
       <view v-if="isSelected" class="selected-indicator"></view>
@@ -46,7 +37,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   displayIndex: false,
   isSelected: false,
-  clickable: false
+  clickable: false,
 });
 
 const emit = defineEmits<{
@@ -88,7 +79,7 @@ const playerClasses = computed(() => {
   const classes: Record<string, boolean> = {
     'is-leader': isLeader.value,
     'is-selected': props.isSelected,
-    'is-clickable': props.clickable
+    'is-clickable': props.clickable,
   };
 
   // 游戏中的特殊状态
@@ -116,8 +107,6 @@ const handlePlayerClick = () => {
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
 .player {
   position: relative;
   width: 120rpx;
@@ -185,7 +174,8 @@ const handlePlayerClick = () => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
@@ -231,7 +221,8 @@ const handlePlayerClick = () => {
 }
 
 @keyframes waiting-pulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 20rpx rgba($player-wait, 0.5);
   }
   50% {

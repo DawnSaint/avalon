@@ -3,17 +3,13 @@
     class="game-card"
     :class="{
       'game-card--victory': isPlayerWin,
-      'game-card--defeat': !isPlayerWin
+      'game-card--defeat': !isPlayerWin,
     }"
     @tap="handleCardClick"
   >
     <!-- 胜负标识 -->
     <view class="game-result">
-      <image
-        class="result-icon"
-        :src="resultIcon"
-        mode="aspectFit"
-      />
+      <image class="result-icon" :src="resultIcon" mode="aspectFit" />
       <text class="result-text">{{ isPlayerWin ? '胜利' : '失败' }}</text>
     </view>
 
@@ -47,11 +43,7 @@
 
     <!-- 阵营标识 -->
     <view class="camp-badge">
-      <image
-        class="camp-icon"
-        :src="campIcon"
-        mode="aspectFit"
-      />
+      <image class="camp-icon" :src="campIcon" mode="aspectFit" />
     </view>
   </view>
 </template>
@@ -97,12 +89,12 @@ const END_REASON_MAP: Record<string, string> = {
   killLovers: '杀死情侣',
   missCleric: '未杀死教士',
   killCleric: '杀死教士',
-  rejectedVote: '投票被拒绝'
+  rejectedVote: '投票被拒绝',
 };
 
 // 计算属性
 const currentPlayer = computed(() => {
-  return props.game.players.find(p => p.id === store.profile?.id);
+  return props.game.players.find((p) => p.id === store.profile?.id);
 });
 
 const playerRole = computed(() => {
@@ -150,14 +142,12 @@ const handleCardClick = () => {
   // 可以导航到游戏详情页面
   uni.showToast({
     title: '功能开发中',
-    icon: 'none'
+    icon: 'none',
   });
 };
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
 .game-card {
   position: relative;
   display: flex;

@@ -10,11 +10,7 @@
     </view>
 
     <view class="loyalty-badge" :class="`badge-${player.loyalty}`">
-      <image
-        class="loyalty-icon"
-        :src="loyaltyIcon"
-        mode="aspectFit"
-      />
+      <image class="loyalty-icon" :src="loyaltyIcon" mode="aspectFit" />
       <text>{{ loyaltyText }}</text>
     </view>
   </view>
@@ -51,7 +47,7 @@ const roleText = computed(() => {
     lancelots: '兰斯洛特们',
     brute: '野蛮人',
     lunatic: '疯子',
-    trickster: '骗子'
+    trickster: '骗子',
   };
   return roleMap[props.player.role] || props.player.role;
 });
@@ -68,8 +64,6 @@ const loyaltyIcon = computed(() => {
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
 .role-reveal-card {
   display: flex;
   align-items: center;

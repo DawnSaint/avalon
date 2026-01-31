@@ -14,12 +14,9 @@ $text-disabled: #999999; // 禁用文本
 $text-white: #ffffff; // 白色文本
 
 // ========== 背景颜色 (Light Theme - 极简风格) ==========
-$bg-app: #cfd8dc; // 应用主背景 (浅灰蓝)
-$bg-header: #d1d5db; // 头部背景
-$bg-page: #cfd8dc; // 页面背景 - 与原UI统一
-$bg-card: transparent; // 卡片背景 - 透明（极简风格）
-$inset: transparent; // 按钮/内嵌元素背景 - 透明
-$inset-hover: rgba(0, 0, 0, 0.05); // 内嵌元素悬停态 - 轻微变暗
+$bg: #ffffff;
+$bg-card: transparent;
+$inset: transparent;
 $bg-hover: rgba(0, 0, 0, 0.05); // 通用悬停背景 - 轻微变暗
 
 // ========== 阵营颜色 ==========
@@ -27,11 +24,6 @@ $loyalty-good: #1976d2; // 好人 - 蓝色
 $loyalty-good-bg: #e3f2fd; // 好人背景色
 $loyalty-evil: #c8000f; // 坏人 - 红色
 $loyalty-evil-bg: #ffebee; // 坏人背景色
-
-// ========== 游戏棋盘颜色 ==========
-// 原UI使用背景图片，这里提供纯色fallback
-$board-bg: #262c36; // 棋盘背景色（深灰）
-$board-shadow: rgba(0, 0, 0, 0.1);
 
 // 游戏结束效果
 $game-end-good: #1976d2; // 好人胜利 - 蓝色
@@ -98,6 +90,9 @@ $spacing-sm: 16rpx;
 $spacing-md: 24rpx;
 $spacing-lg: 32rpx;
 $spacing-xl: 40rpx;
+$spacing-xxl: 48rpx;
+$spacing-xxxl: 64rpx;
+$spacing-header: 160rpx;
 
 // ========== 字体大小 ==========
 $font-xs: 22rpx;
@@ -106,3 +101,4 @@ $font-md: 28rpx;
 $font-lg: 32rpx;
 $font-xl: 36rpx;
 $font-xxl: 48rpx;
+$font-xxxl: 64rpx;

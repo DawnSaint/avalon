@@ -1,11 +1,9 @@
 <template>
   <view class="profile-page">
     <!-- 返回按钮 -->
-    <view v-if="currentView !== 'profile' && store.profile" class="back-button" @click="handleBack">
-      <text class="back-icon">‹</text>
-    </view>
-
     <view v-if="store.profile" class="profile-container">
+      <text v-if="currentView !== 'profile'" class="back-button" @click="handleBack">‹</text>
+
       <!-- 个人资料视图 -->
       <view v-if="currentView === 'profile'">
         <!-- 头部信息 -->
@@ -38,43 +36,36 @@
               <text class="menu-label">历史战绩</text>
               <text class="menu-arrow">›</text>
             </view>
-            <!-- <view class="menu-item" @click="handleViewAchievements">
+            <view class="menu-item" @click="handleViewAchievements">
               <text class="menu-label">查看成就</text>
               <text class="menu-arrow">›</text>
-            </view> -->
+            </view>
           </view>
         </view>
       </view>
 
       <!-- 历史战绩视图 -->
-      <view v-else-if="currentView === 'history'">
-        <HistoryView />
-      </view>
+      <HistoryView v-else-if="currentView === 'history'" />
 
       <!-- 成就视图 -->
-      <view v-else-if="currentView === 'achievements'">
-        <AchievementsView />
-      </view>
+      <AchievementsView v-else-if="currentView === 'achievements'" />
     </view>
 
     <!-- 未登录状态 - 显示登录表单 -->
     <view v-else class="auth-container">
-      <!-- 错误提示 -->
-      <view v-if="loginError" class="error-message">
-        <text>{{ loginError }}</text>
-      </view>
+      <LobbyLogo />
 
       <!-- 微信登录 -->
-      <view v-if="!showNicknameInput" class="form">
-        <button
-          class="wechat-login-btn"
-          :class="{ disabled: loginLoading }"
-          @click="handleWechatLogin"
-          :disabled="loginLoading"
-        >
-          {{ loginLoading ? '登录中...' : '微信登录' }}
-        </button>
-      </view>
+      <button
+        v-if="!showNicknameInput"
+        class="wechat-login-btn"
+        type="primary"
+        :class="{ disabled: loginLoading }"
+        @click="handleWechatLogin"
+        :disabled="loginLoading"
+      >
+        {{ loginLoading ? '登录中...' : '微信登录' }}
+      </button>
 
       <!-- 昵称和头像设置 -->
       <NicknameAvatarForm v-else ref="nicknameFormRef" :loading="loginLoading" @confirm="handleConfirmNickname" />
@@ -87,8 +78,10 @@ import { computed, ref, onMounted } from 'vue';
 import { useMainStore } from '@/store';
 import { socket } from '@/api/socket';
 import HistoryView from '@/components/profile/HistoryView.vue';
+import LobbyLogo from '@/components/LobbyLogo.vue';
 import AchievementsView from '@/components/profile/AchievementsView.vue';
 import NicknameAvatarForm from '@/components/NicknameAvatarForm.vue';
+import { wechatLogin, confirmNicknameAndLogin } from '@/utils/login';
 
 const store = useMainStore();
 
@@ -98,7 +91,6 @@ const currentView = ref<ViewType>('profile');
 
 // 登录相关状态
 const loginLoading = ref(false);
-const loginError = ref('');
 const showNicknameInput = ref(false);
 const wechatCode = ref('');
 const nicknameFormRef = ref<InstanceType<typeof NicknameAvatarForm> | null>(null);
@@ -193,34 +185,42 @@ onMounted(() => {
   }
 });
 
-// 微信登录 - 第一步：获取授权码
+// 微信登录 - 使用工具函数
 const handleWechatLogin = async () => {
   loginLoading.value = true;
-  loginError.value = '';
 
   try {
-    // 获取微信授权码
-    const loginRes = await new Promise<any>((resolve, reject) => {
-      uni.login({
-        provider: 'weixin',
-        success: resolve,
-        fail: reject,
+    const result = await wechatLogin();
+
+    if (result.success) {
+      // 登录成功，直接进入已登录状态
+      uni.showToast({
+        title: '登录成功',
+        icon: 'success',
+        duration: 2000,
       });
-    });
-
-    if (!loginRes.code) {
-      loginError.value = '获取微信授权失败';
-      loginLoading.value = false;
-      return;
+      // 获取统计数据
+      await initStats();
+    } else if (result.needsNickname) {
+      // 需要配置昵称和头像
+      wechatCode.value = result.code || '';
+      showNicknameInput.value = true;
+    } else {
+      // 登录失败
+      uni.showToast({
+        title: result.error || '登录失败',
+        icon: 'none',
+        duration: 2000,
+      });
     }
-
-    // 保存授权码，显示昵称输入界面
-    wechatCode.value = loginRes.code;
-    showNicknameInput.value = true;
-    loginLoading.value = false;
   } catch (e) {
     console.error('WeChat login error:', e);
-    loginError.value = '微信登录失败，请稍后重试';
+    uni.showToast({
+      title: '登录失败',
+      icon: 'none',
+      duration: 2000,
+    });
+  } finally {
     loginLoading.value = false;
   }
 };
@@ -228,19 +228,11 @@ const handleWechatLogin = async () => {
 // 确认昵称并完成登录
 const handleConfirmNickname = async (userInfo: { nickname: string; avatarUrl?: string }) => {
   loginLoading.value = true;
-  loginError.value = '';
 
   try {
-    // 发送到后端登录
-    const result = await store.wechatLogin(wechatCode.value, userInfo);
+    const result = await confirmNicknameAndLogin(wechatCode.value, userInfo);
 
-    if (result && 'error' in result) {
-      loginError.value = result.error === 'wechatAuthFailed' ? '微信授权失败，请重试' : result.error;
-      // 重置状态，让用户重新登录
-      showNicknameInput.value = false;
-      wechatCode.value = '';
-      nicknameFormRef.value?.reset();
-    } else {
+    if (result.success) {
       // 登录成功
       uni.showToast({
         title: '登录成功',
@@ -252,11 +244,26 @@ const handleConfirmNickname = async (userInfo: { nickname: string; avatarUrl?: s
       wechatCode.value = '';
       nicknameFormRef.value?.reset();
       // 获取统计数据
-      initStats();
+      await initStats();
+    } else {
+      // 登录失败
+      uni.showToast({
+        title: result.error || '登录失败',
+        icon: 'none',
+        duration: 2000,
+      });
+      // 重置状态，让用户重新登录
+      showNicknameInput.value = false;
+      wechatCode.value = '';
+      nicknameFormRef.value?.reset();
     }
   } catch (e) {
     console.error('WeChat login error:', e);
-    loginError.value = '登录失败，请稍后重试';
+    uni.showToast({
+      title: '登录失败',
+      icon: 'none',
+      duration: 2000,
+    });
     // 重置状态
     showNicknameInput.value = false;
     wechatCode.value = '';
@@ -283,31 +290,21 @@ const handleBack = () => {
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
 .profile-page {
-  min-height: 100vh;
   box-sizing: border-box;
-  padding: 160rpx 30rpx 140rpx; // 底部留空给TabBar
-  position: relative;
+  padding: $spacing-header $spacing-lg;
 }
 
 .back-button {
   position: fixed;
-  top: 30rpx;
-  left: 30rpx;
-  z-index: 100;
-  padding: 10rpx;
+  top: $spacing-xxxl;
+  left: $spacing-xl;
+  font-size: $font-xxl;
+  color: $text-secondary;
 
   &:active {
     opacity: 0.5;
   }
-}
-
-.back-icon {
-  font-size: 50rpx;
-  color: $text-secondary;
-  line-height: 1;
 }
 
 .profile-container {
@@ -320,7 +317,6 @@ const handleBack = () => {
   border-radius: 0;
   padding: 60rpx 40rpx;
   margin-bottom: $spacing-lg;
-  border-bottom: 2rpx solid rgba(0, 0, 0, 0.05);
 }
 
 .profile-info {
@@ -421,67 +417,20 @@ const handleBack = () => {
 }
 
 .menu-arrow {
-  font-size: 40rpx;
+  font-size: $font-xxl;
   color: $text-secondary;
   margin-left: $spacing-sm;
 }
 
 // 未登录时的登录表单样式
 .auth-container {
-  max-width: 600rpx;
-  margin: 0 auto;
-  padding: 60rpx 50rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   min-height: 60vh;
 }
 
-.error-message {
-  background-color: lighten($error, 45%);
-  border: 2rpx solid lighten($error, 35%);
-  border-radius: $radius-medium;
-  padding: 20rpx;
-  margin-bottom: $spacing-lg;
-  width: 100%;
-  text-align: center;
-}
-
-.error-message text {
-  color: $error;
-  font-size: $font-sm;
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 60rpx;
-  width: 100%;
-}
-
 .wechat-login-btn {
-  width: auto;
-  padding: 20rpx 60rpx;
-  background: transparent;
-  color: $text-primary;
-  border-radius: 0;
+  margin: 36vh $spacing-xxxl 0;
   font-size: $font-xl;
   font-weight: 600;
-  border: none;
   transition: opacity $transition-normal;
-}
-
-.wechat-login-btn:active {
-  opacity: 0.6;
-}
-
-.wechat-login-btn::after {
-  border: none;
-}
-
-.wechat-login-btn.disabled {
-  opacity: 0.6;
 }
 </style>

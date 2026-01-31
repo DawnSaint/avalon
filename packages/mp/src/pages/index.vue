@@ -1,25 +1,16 @@
 <template>
   <view class="lobby">
     <!-- 主标题 -->
-    <view class="lobby-header">
-      <text>AVAL</text>
-      <text class="lobby-header-on">ON</text>
-      <text class="lobby-header-line">line</text>
-    </view>
+    <LobbyLogo />
 
     <!-- 创建房间按钮 -->
-    <button class="create-room-btn" @click="createRoom" :loading="isCreating" :disabled="isCreating">
+    <button class="create-room-btn" @click="createRoom">
       {{ isCreating ? '创建中...' : '创建房间' }}
     </button>
 
     <!-- 房间列表 -->
     <view v-if="roomsList && roomsList.length" class="rooms-list">
-      <view
-        v-for="(game, index) in roomsList"
-        :key="game.uuid"
-        class="game-item"
-        @click="handleRoomClick(game.uuid)"
-      >
+      <view v-for="(game, index) in roomsList" :key="game.uuid" class="game-item" @click="handleRoomClick(game.uuid)">
         <view class="game-index">{{ index + 1 }}.</view>
         <view class="game-container">
           <view class="game-left">
@@ -52,16 +43,16 @@
         </view>
       </view>
     </view>
-
   </view>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import LobbyLogo from '@/components/LobbyLogo.vue';
 import { useMainStore } from '@/store';
 import { socket } from '@/api/socket';
 import type { TRoomsList, GameOptionsRoles, GameOptionsAddons } from '@/types';
-
+import { wechatLogin } from '@/utils/login';
 
 const store = useMainStore();
 const roomsList = ref<TRoomsList>([]);
@@ -93,22 +84,64 @@ const initState = async () => {
 // 创建房间
 const createRoom = async () => {
   if (!store.profile) {
-    uni.showModal({
-      title: '提示',
-      content: '请先登录后再创建房间',
-      confirmText: '去登录',
-      cancelText: '取消',
-      success: (res) => {
-        if (res.confirm) {
-          uni.navigateTo({
-            url: '/pages/profile'
-          });
-        }
-      }
+    // 未登录，尝试微信登录
+    uni.showLoading({
+      title: '登录中...',
+      mask: true,
     });
+
+    try {
+      const result = await wechatLogin();
+      uni.hideLoading();
+
+      if (result.success) {
+        // 登录成功，继续创建房间
+        uni.showToast({
+          title: '登录成功',
+          icon: 'success',
+          duration: 1500,
+        });
+        // 等待 toast 显示后再创建房间
+        setTimeout(() => {
+          performCreateRoom();
+        }, 1500);
+      } else if (result.needsNickname) {
+        // 需要配置昵称，跳转到 profile 页面
+        uni.showModal({
+          title: '提示',
+          content: '请先完成昵称和头像设置',
+          showCancel: false,
+          success: () => {
+            uni.switchTab({
+              url: '/pages/profile',
+            });
+          },
+        });
+      } else {
+        // 登录失败
+        uni.showModal({
+          title: '登录失败',
+          content: result.error || '请重试',
+          showCancel: false,
+        });
+      }
+    } catch (e) {
+      uni.hideLoading();
+      console.error('Login error:', e);
+      uni.showToast({
+        title: '登录失败',
+        icon: 'none',
+        duration: 2000,
+      });
+    }
     return;
   }
 
+  performCreateRoom();
+};
+
+// 执行创建房间
+const performCreateRoom = async () => {
   if (isCreating.value) {
     return;
   }
@@ -118,16 +151,15 @@ const createRoom = async () => {
   try {
     const uuid = await socket.emitWithAck<string>('createRoom');
     uni.navigateTo({
-      url: `/pages/room?uuid=${uuid}`
+      url: `/pages/room?uuid=${uuid}`,
     });
   } catch (e) {
     console.error('Failed to create room:', e);
     uni.showToast({
       title: '创建房间失败',
       icon: 'none',
-      duration: 2000
+      duration: 2000,
     });
-  } finally {
     isCreating.value = false;
   }
 };
@@ -135,7 +167,7 @@ const createRoom = async () => {
 // 进入房间
 const handleRoomClick = (uuid: string) => {
   uni.navigateTo({
-    url: `/pages/room?uuid=${uuid}`
+    url: `/pages/room?uuid=${uuid}`,
   });
 };
 
@@ -163,37 +195,15 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
 .lobby {
-  min-height: 100vh;
   box-sizing: border-box;
-  padding: 120rpx 20rpx 140rpx; // 底部留空给TabBar
+  padding: $spacing-header $spacing-lg;
 }
-
-.lobby-header {
-  font-family: 'Overt', sans-serif;
-  font-size: $font-xxl;
-  font-weight: bold;
-  color: $text-primary;
-  text-align: center;
-}
-
-.lobby-header-on {
-  color: $accent;
-}
-
-.lobby-header-line {
-  color: $accent;
-  font-size: $font-lg;
-}
-
 
 .create-room-btn {
-  margin: 64rpx 64px;
-  background-color: transparent;
-  color: $text-primary;
-  border-radius: 0;
+  margin: 36vh $spacing-xxxl 0;
+  color: $text-white;
+  background-color: $accent;
   font-size: $font-xl;
   border: none;
   font-weight: 600;
@@ -207,16 +217,11 @@ onUnmounted(() => {
 .create-room-btn[disabled] {
   opacity: 0.5;
   cursor: not-allowed;
-  background-color: transparent;
+  background-color: $primary;
 }
-
-.create-room-btn::after {
-  border: none;
-}
-
 
 .rooms-list {
-  width: 100%;
+  margin-top: $spacing-xxl;
 }
 
 .game-item {
@@ -317,7 +322,6 @@ onUnmounted(() => {
   color: $text-secondary;
   font-weight: 500;
 }
-
 
 // 忠诚度图标样式
 .good-loyalty-icon,

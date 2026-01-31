@@ -18,24 +18,38 @@ export class MPUserLayer {
       let user = await mpUserModel.findOne({ wechatOpenid: openid });
 
       if (!user) {
+        // 新用户注册，必须提供昵称
+        if (!userInfo?.nickname) {
+          return { error: 'nicknameRequired' };
+        }
+
         // 生成唯一用户ID
         const userId = this.generateUserId();
-        const nickname = userInfo?.nickname || `小程序用户${userId.substring(3, 9)}`;
+        const nickname = userInfo.nickname;
 
         user = new mpUserModel({
           id: userId,
           name: nickname,
           wechatOpenid: openid,
           wechatUnionid: userInfo?.unionid,
-          avatar: 'servant',
+          avatar: userInfo?.avatarUrl || 'servant',
           registrationDate: new Date(),
           lastLoginDate: new Date(),
         });
 
         await user.save();
       } else {
-        // 更新最后登录时间
+        // 已有用户，更新最后登录时间
         user.lastLoginDate = new Date();
+
+        // 如果提供了新的用户信息，更新用户资料
+        if (userInfo?.nickname && userInfo.nickname !== user.name) {
+          user.name = userInfo.nickname;
+        }
+        if (userInfo?.avatarUrl && userInfo.avatarUrl !== user.avatar) {
+          user.avatar = userInfo.avatarUrl;
+        }
+
         await user.save();
       }
 

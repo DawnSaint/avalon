@@ -4,16 +4,22 @@
     <view class="game-board" :class="boardClasses">
       <!-- 中心内容区域 -->
 
-      <text v-if="roomStage === 'created' || roomStage === 'locked'"  class="waiting-text">等待玩家加入 {{ players.length }}/10</text>
+      <text v-if="roomStage === 'created' || roomStage === 'locked'" class="waiting-text"
+        >等待玩家加入 {{ players.length }}/10</text
+      >
       <slot name="host-panel"></slot>
-
     </view>
 
     <!-- 玩家圆形布局 -->
     <view v-for="(player, index) in players" :key="player.id" class="player-position" :style="getPlayerPosition(index)">
       <view class="player-wrapper" :style="getPlayerRotation(index)">
-        <Player :player="player" :display-index="displayPlayerIndex" :is-selected="isPlayerSelected(player.id)"
-          :clickable="canSelectPlayer" @player-click="handlePlayerClick" />
+        <Player
+          :player="player"
+          :display-index="displayPlayerIndex"
+          :is-selected="isPlayerSelected(player.id)"
+          :clickable="canSelectPlayer"
+          @player-click="handlePlayerClick"
+        />
       </view>
     </view>
   </view>
@@ -37,7 +43,7 @@ const props = withDefaults(defineProps<Props>(), {
   roomStage: 'created',
   displayPlayerIndex: false,
   selectedPlayers: () => [],
-  canSelectPlayer: false
+  canSelectPlayer: false,
 });
 
 const emit = defineEmits<{
@@ -53,11 +59,11 @@ const getPlayerPosition = (index: number) => {
   // 计算 x, y 坐标
   const radian = (angle - 90) * (Math.PI / 180);
   const x = Number((radius * Math.cos(radian)).toFixed(2));
-  const y = Number((radius * Math.sin(radian)).toFixed(2));  
+  const y = Number((radius * Math.sin(radian)).toFixed(2));
 
   return {
     transform: `translate(${x}rpx, ${y}rpx)`,
-    transition: 'transform 0.5s ease'
+    transition: 'transform 0.5s ease',
   };
 };
 
@@ -68,7 +74,7 @@ const getPlayerRotation = (index: number) => {
 
   return {
     transform: `rotate(${-angle}deg)`,
-    transition: 'transform 0.5s ease'
+    transition: 'transform 0.5s ease',
   };
 };
 
@@ -76,7 +82,7 @@ const getPlayerRotation = (index: number) => {
 const boardClasses = computed(() => {
   return {
     'game-end-good': props.gameResult === 'good',
-    'game-end-evil': props.gameResult === 'evil'
+    'game-end-evil': props.gameResult === 'evil',
   };
 });
 
@@ -84,7 +90,7 @@ const boardClasses = computed(() => {
 const boardScale = computed(() => {
   // 这里可以根据实际需求调整缩放比例
   return {
-    transform: 'scale(1)'
+    transform: 'scale(1)',
   };
 });
 
@@ -100,9 +106,6 @@ const handlePlayerClick = (playerId: string) => {
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
-
 .board-container {
   position: relative;
   width: 700rpx;
@@ -140,7 +143,6 @@ const handlePlayerClick = (playerId: string) => {
 }
 
 @keyframes victory-pulse {
-
   0%,
   100% {
     transform: scale(1);
@@ -149,7 +151,6 @@ const handlePlayerClick = (playerId: string) => {
     transform: scale(1.02);
   }
 }
-
 
 .waiting-text {
   font-size: $font-lg;

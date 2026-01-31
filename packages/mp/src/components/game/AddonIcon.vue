@@ -1,12 +1,7 @@
 <template>
   <view class="addon-icon-wrapper">
     <view class="addon-icon" :class="`icon-${addonType}`">
-      <image
-        v-if="iconSrc"
-        :src="iconSrc"
-        class="addon-image"
-        mode="aspectFit"
-      />
+      <image v-if="iconSrc" :src="iconSrc" class="addon-image" mode="aspectFit" />
     </view>
     <text v-if="showLabel" class="addon-label">{{ addonLabel }}</text>
   </view>
@@ -23,7 +18,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   showLabel: true,
-  size: 'medium'
+  size: 'medium',
 });
 
 const iconSrc = computed(() => {
@@ -31,7 +26,7 @@ const iconSrc = computed(() => {
     ladyOfLake: '/static/images/features/lady_of_lake.webp',
     ladyOfSea: '/static/images/features/lady_of_sea.webp',
     excalibur: '/static/images/features/excalibur.webp',
-    plotCards: '/static/images/features/plot_cards.webp'
+    plotCards: '/static/images/features/plot_cards.webp',
   };
   return iconMap[props.addonType];
 });
@@ -41,15 +36,13 @@ const addonLabel = computed(() => {
     ladyOfLake: '湖中女神',
     ladyOfSea: '海之女神',
     excalibur: '圣剑',
-    plotCards: '剧情卡'
+    plotCards: '剧情卡',
   };
   return labelMap[props.addonType];
 });
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
 .addon-icon-wrapper {
   display: flex;
   flex-direction: column;

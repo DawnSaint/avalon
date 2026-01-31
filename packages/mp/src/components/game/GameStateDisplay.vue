@@ -33,7 +33,7 @@ const stageTextMap: Record<string, string> = {
   revealLoyalty: '公开忠诚度',
   giveExcalibur: '传递圣剑',
   useExcalibur: '使用圣剑',
-  end: '游戏结束'
+  end: '游戏结束',
 };
 
 const stageText = computed(() => {
@@ -53,9 +53,9 @@ const currentMission = computed(() => {
 });
 
 const showMissionInfo = computed(() => {
-  return props.state.stage === 'selectTeam' ||
-         props.state.stage === 'votingForTeam' ||
-         props.state.stage === 'onMission';
+  return (
+    props.state.stage === 'selectTeam' || props.state.stage === 'votingForTeam' || props.state.stage === 'onMission'
+  );
 });
 
 const requiredPlayers = computed(() => {
@@ -68,8 +68,6 @@ const requiredPlayers = computed(() => {
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
 .game-state-display {
   padding: $spacing-lg $spacing-md;
   background-color: transparent;

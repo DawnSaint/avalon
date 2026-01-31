@@ -9,11 +9,7 @@
       <button class="action-btn success" @click="handleAction('success')">
         <text>成功</text>
       </button>
-      <button
-        v-if="canFail"
-        class="action-btn fail"
-        @click="handleAction('fail')"
-      >
+      <button v-if="canFail" class="action-btn fail" @click="handleAction('fail')">
         <text>失败</text>
       </button>
     </view>
@@ -46,7 +42,7 @@ const emit = defineEmits<Emits>();
 
 // 获取当前玩家
 const currentPlayer = computed(() => {
-  return props.game.players.find(p => p.id === props.currentPlayerId);
+  return props.game.players.find((p) => p.id === props.currentPlayerId);
 });
 
 // 检查是否可以投失败
@@ -67,8 +63,6 @@ const handleAction = (result: TMissionResult) => {
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
 .mission-action-panel {
   padding: $spacing-lg $spacing-md;
   background-color: transparent;

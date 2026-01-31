@@ -49,8 +49,6 @@ const getMissionClass = (mission: MissionWithResult, index: number) => {
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
 .mission-board {
   display: flex;
   justify-content: center;

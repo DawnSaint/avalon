@@ -8,11 +8,7 @@
     <view class="proposed-team">
       <text class="team-label">提议的队伍:</text>
       <view class="team-members">
-        <text
-          v-for="(player, index) in proposedTeamNames"
-          :key="index"
-          class="member-name"
-        >
+        <text v-for="(player, index) in proposedTeamNames" :key="index" class="member-name">
           {{ player }}
         </text>
       </view>
@@ -63,19 +59,19 @@ const voteRound = computed(() => {
 
 // 获取提议队伍的玩家名称
 const proposedTeamNames = computed(() => {
-  const selectedPlayers = props.game.players.filter(p => p.features.isSent);
-  return selectedPlayers.map(p => p.name);
+  const selectedPlayers = props.game.players.filter((p) => p.features.isSent);
+  return selectedPlayers.map((p) => p.name);
 });
 
 // 检查当前玩家是否已投票
 const hasVoted = computed(() => {
-  const currentPlayer = props.game.players.find(p => p.id === props.currentPlayerId);
+  const currentPlayer = props.game.players.find((p) => p.id === props.currentPlayerId);
   return currentPlayer ? !currentPlayer.features.waitForAction : false;
 });
 
 // 检查是否显示投票结果（所有人都投票完成）
 const showVoteResult = computed(() => {
-  const allVoted = props.game.players.every(p => !p.features.waitForAction);
+  const allVoted = props.game.players.every((p) => !p.features.waitForAction);
   return allVoted && props.game.history.length > 0;
 });
 
@@ -84,7 +80,7 @@ const approveCount = computed(() => {
   if (!showVoteResult.value) return 0;
 
   // 从历史记录中获取最近的投票记录
-  const voteHistory = props.game.history.filter(h => h.type === 'vote');
+  const voteHistory = props.game.history.filter((h) => h.type === 'vote');
   if (voteHistory.length === 0) return 0;
 
   const latestVote = voteHistory[voteHistory.length - 1];
@@ -97,7 +93,7 @@ const approveCount = computed(() => {
 const rejectCount = computed(() => {
   if (!showVoteResult.value) return 0;
 
-  const voteHistory = props.game.history.filter(h => h.type === 'vote');
+  const voteHistory = props.game.history.filter((h) => h.type === 'vote');
   if (voteHistory.length === 0) return 0;
 
   const latestVote = voteHistory[voteHistory.length - 1];
@@ -113,8 +109,6 @@ const handleVote = (option: TVoteOption) => {
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/theme.scss';
-
 .voting-panel {
   padding: $spacing-lg $spacing-md;
   background-color: transparent;
