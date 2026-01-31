@@ -21,15 +21,6 @@ export const validators = {
     return { valid: false, message: '最少需要8个字符' };
   },
 
-  // 邮箱格式验证
-  email: (value: string): ValidationResult => {
-    const emailRegex = /^\S+@\S+\.\S+$/;
-    if (emailRegex.test(value)) {
-      return { valid: true };
-    }
-    return { valid: false, message: '请输入有效的邮箱地址（例如: example@email.com）' };
-  },
-
   // 登录名验证（只允许字母、数字、下划线、点和横杠）
   login: (value: string): ValidationResult => {
     const loginRegex = /^[a-zA-Z0-9_.-]+$/;
@@ -56,7 +47,7 @@ export const validators = {
       }
     }
     return { valid: true };
-  }
+  },
 };
 
 // 验证整个表单

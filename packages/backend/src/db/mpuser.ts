@@ -104,15 +104,6 @@ export class MPUserLayer {
   }
 
   /**
-   * 更新用户头像
-   * @param id 用户ID
-   * @param avatarID 头像ID
-   */
-  async updateUserAvatar(id: string, avatarID: string): Promise<void> {
-    await mpUserModel.findOneAndUpdate({ id }, { $set: { avatar: avatarID } });
-  }
-
-  /**
    * 获取用户完成的成就列表
    * @param userID 用户ID
    * @returns 成就ID列表

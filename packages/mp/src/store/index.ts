@@ -11,6 +11,14 @@ import type {
   Dictionary,
 } from '@/types';
 
+interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  requirement: number;
+  metadata?: Record<string, unknown>;
+}
+
 interface State {
   profile: UserWithToken | null;
   users: Dictionary<TUserState>;
@@ -19,6 +27,7 @@ interface State {
   connect: boolean | null;
   alerts: TAlerts;
   fontLoaded: boolean;
+  achievements: Achievement[];
 }
 
 // 辅助函数：从存储中读取数据
@@ -87,18 +96,30 @@ export const useMainStore = defineStore('main', {
     connect: null,
     alerts: getStorageData<TAlerts>(alertStoragePath, {}),
     fontLoaded: false,
+    achievements: [],
   }),
 
   getters: {
     isLoggedIn: (state) => !!state.profile,
     userName: (state) => state.profile?.name || '',
     userAvatar: (state) => state.profile?.avatar || '',
+    getAchievementName: (state) => {
+      return (achievementID: string) => {
+        const achievement = state.achievements.find((a) => a.id === achievementID);
+        return achievement?.name || achievementID;
+      };
+    },
   },
 
   actions: {
     // 设置字体加载状态
     setFontLoaded(loaded: boolean) {
       this.fontLoaded = loaded;
+    },
+
+    // 设置成就列表
+    setAchievements(achievements: Achievement[]) {
+      this.achievements = achievements;
     },
 
     // 更新警告计数器
@@ -221,17 +242,6 @@ export const useMainStore = defineStore('main', {
       return result;
     },
 
-    // 更新用户头像
-    async updateUserAvatar(avatarID: string) {
-      const result = await socket.emitWithAck<boolean>('updateUserAvatar', avatarID);
-
-      if (this.profile && result === true) {
-        this.updateUserProfile({ ...this.profile, avatar: avatarID }, { updateToken: false });
-      }
-
-      return result;
-    },
-
     // 更新用户登录名
     async updateUserLogin(login: string, password: string) {
       const result = await socket.emitWithAck<boolean>('updateUserLogin', password, login);
@@ -294,35 +304,19 @@ socket.on('renewJWT', () => {
   store.clearUserProfile();
 });
 
-const ACHIEVEMENT_NAMES: Record<string, string> = {
-  light_wins: '除了恐惧本身，别无所惧！',
-  dark_wins: '黑暗的降临',
-  all_standard_roles: '全能高手',
-  different_player_count: '人生是一连串的选择',
-  assassin_kills: '我看到死去的人。',
-  secret_hunter: '秘密猎人',
-  undercover_agent: '卧底特工',
-  useless_role: '这角色有啥用',
-  still_worthy: '依然值得',
-  detective: '侦探',
-  mistakes_happen: '失误难免',
-  serial_killer: '连环杀手',
-  wrong_choice: '错误的选择',
-  bodyguard: '保镖',
-  seer: '先知',
-};
-
 socket.on('achievementUnlocked', (achievementID: string) => {
-  const achievementName = ACHIEVEMENT_NAMES[achievementID] || achievementID;
+  const store = useMainStore();
+  const achievementName = store.getAchievementName(achievementID);
   uni.showToast({
-    title: `${achievementName}`,
+    title: `🎉 ${achievementName}`,
     icon: 'success',
     duration: 3000,
   });
 });
 
 socket.on('achievementProgress', (data: { achievementID: string; currentProgress: number; requirement: number }) => {
-  const achievementName = ACHIEVEMENT_NAMES[data.achievementID] || data.achievementID;
+  const store = useMainStore();
+  const achievementName = store.getAchievementName(data.achievementID);
   uni.showToast({
     title: `${achievementName} ${data.currentProgress}/${data.requirement}`,
     icon: 'none',

@@ -20,7 +20,6 @@ import { updateTrueSkillForGame } from '@/scripts/updateTrueSkillRatings';
 import { DBManager } from '@/db';
 import { validateJWT } from '@/user';
 import { AchievementManager } from '@/achievements';
-import { AvatarsManager } from '@/user/avatars';
 import jwt from 'jsonwebtoken';
 
 export class Manager {
@@ -28,7 +27,6 @@ export class Manager {
   roomsList: TRoomsList = [];
   io: Server;
   dbManager: DBManager;
-  avatarsManager: AvatarsManager;
   achievementManager: AchievementManager;
   onlineCounter: Dictionary<number> = {};
 
@@ -147,7 +145,6 @@ export class Manager {
   constructor(io: Server, dbManager: DBManager) {
     this.io = io;
     this.dbManager = dbManager;
-    this.avatarsManager = new AvatarsManager(dbManager);
     this.achievementManager = new AchievementManager(io);
 
     this.dbManager.getLastRooms(20).then((rooms) => {
@@ -394,11 +391,6 @@ export class Manager {
         this.dbManager.updateMPUserName(userID, name);
       });
 
-      socket.on('updateMPUserAvatar', async (avatarID, cb) => {
-        await this.dbManager.updateMPUserAvatar(userID, avatarID);
-        cb(true);
-      });
-
       socket.on('getMPMyProfile', async (cb) => {
         const profile = await this.dbManager.getMPUserPublicProfile(userID);
         cb(profile);
@@ -413,11 +405,6 @@ export class Manager {
         cb(result);
       });
 
-      socket.on('getUserAvatars', async (cb) => {
-        const avatars = await this.avatarsManager.getAvailableAvatarsForUser(userID);
-        cb(avatars);
-      });
-
       socket.on('getMyProfile', async (cb) => {
         const userForUI = await this.dbManager.getUserProfile(userID);
 
@@ -426,11 +413,6 @@ export class Manager {
 
       socket.on('revealEasterEgg', () => {
         eventBus.emit('playerRevealSecret', userID);
-      });
-
-      socket.on('updateUserAvatar', async (avatarID, cb) => {
-        const result = await this.avatarsManager.updateUserAvatar(userID, avatarID);
-        cb(result);
       });
 
       socket.on('updateUserEmail', async (password, email, cb) => {

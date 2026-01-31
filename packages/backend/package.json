@@ -7,8 +7,7 @@
     "lint": "eslint . --ext .ts",
     "test": "jest --detectOpenHandles --colors",
     "start": "npx ts-node ./src/index.ts",
-    "dev": "npx nodemon",
-    "init-achievements": "npx ts-node ./src/scripts/initAchievements.ts"
+    "dev": "npx nodemon"
   },
   "keywords": [],
   "author": "@Razdva122",

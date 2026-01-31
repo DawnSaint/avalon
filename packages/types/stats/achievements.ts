@@ -15,6 +15,12 @@ export class Achievement {
   @prop({ required: true, unique: true })
   id!: string; // Уникальный идентификатор достижения
 
+  @prop({ required: true })
+  name!: string; // Название достижения
+
+  @prop({ required: true })
+  description!: string; // Описание достижения
+
   @prop({ required: true, default: 0 })
   requirement!: number; // Требуемое значение для получения достижения
 

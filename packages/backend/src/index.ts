@@ -5,6 +5,7 @@ import CookieParser from 'cookie-parser';
 import cors from 'cors';
 
 import { connectDB, DBManager } from '@/db';
+import { initAchievementsOnStartup } from '@/scripts/initAchievements';
 
 import { Manager } from '@/main';
 import { ratingScheduler } from '@/scripts/scheduler';
@@ -26,6 +27,9 @@ app.use(CookieParser());
 app.use(cors(corsOpts.cors));
 
 connectDB().then(async (mongoose) => {
+  // Initialize achievements on startup
+  await initAchievementsOnStartup();
+
   const dbManager = new DBManager(mongoose);
   new Manager(ws as any, dbManager);
 

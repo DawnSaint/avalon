@@ -3,11 +3,7 @@
     <view class="result-header">
       <text class="result-title">游戏结束</text>
       <view class="winner-content">
-        <image
-          class="winner-icon"
-          :src="winnerIcon"
-          mode="aspectFit"
-        />
+        <image class="winner-icon" :src="winnerIcon" mode="aspectFit" />
         <text class="winner-text">{{ winnerText }} 胜利!</text>
       </view>
       <text v-if="result.reason" class="reason-text">{{ reasonText }}</text>
@@ -16,11 +12,7 @@
     <view class="roles-reveal">
       <text class="reveal-title">角色公开</text>
       <view class="roles-list">
-        <RoleRevealCard
-          v-for="player in players"
-          :key="player.id"
-          :player="player"
-        />
+        <RoleRevealCard v-for="player in players" :key="player.id" :player="player" />
       </view>
     </view>
   </view>
@@ -28,7 +20,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { VisualGameState, TGameResult } from '@/types';
+import type { VisualGameState, GameResults } from '@/types';
 import RoleRevealCard from './RoleRevealCard.vue';
 
 interface Props {
@@ -37,8 +29,8 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const result = computed((): TGameResult => {
-  return props.game.result || { winner: 'good', reason: '' };
+const result = computed((): GameResults => {
+  return props.game.result || { winner: 'good' as const, reason: 'goodTeamMissions' as const };
 });
 
 const winnerText = computed(() => {
@@ -53,11 +45,11 @@ const winnerIcon = computed(() => {
 
 const reasonText = computed(() => {
   const reasonMap: Record<string, string> = {
-    'merlinAssassinated': '梅林被刺杀',
-    'missionsFailed': '任务失败次数过多',
-    'missionsSucceeded': '任务成功次数过多',
-    'votesFailed': '投票失败5次',
-    'loverAssassinated': '情侣被刺杀'
+    merlinAssassinated: '梅林被刺杀',
+    missionsFailed: '任务失败次数过多',
+    missionsSucceeded: '任务成功次数过多',
+    votesFailed: '投票失败5次',
+    loverAssassinated: '情侣被刺杀',
   };
   return reasonMap[result.value.reason || ''] || result.value.reason;
 });

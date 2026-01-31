@@ -1,3 +1,11 @@
+import type { VisualGameState, GameResults } from '@avalon/types/game/state';
+import type { Player } from '@avalon/types/game/player';
+import type { MissionWithResult, TMissionResult } from '@avalon/types/game/mission';
+import type { TVoteOption } from '@avalon/types/game/vote';
+import type { TAssassinateType } from '@avalon/types/game/addons/assassin';
+
+export type { VisualGameState, GameResults, Player, MissionWithResult, TMissionResult, TVoteOption, TAssassinateType };
+
 // 基础类型定义
 export interface Dictionary<T> {
   [key: string]: T;
@@ -134,7 +142,7 @@ export interface LockedRoomState extends BaseRoomState {
 export interface StartedRoomState extends BaseRoomState {
   stage: 'started';
   startAt: string;
-  game: any; // 简化处理，后续会完善游戏状态类型
+  game: VisualGameState;
 }
 
 export type TRoomState = CreatedRoomState | LockedRoomState | StartedRoomState;

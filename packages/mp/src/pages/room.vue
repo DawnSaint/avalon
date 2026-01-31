@@ -15,10 +15,9 @@
         <button class="top-bar-btn" @click="handleLeaveRoom">
           <text class="top-bar-text">离开</text>
         </button>
-        <button class="top-bar-btn" open-type="share" @click="handleShareRoom">
+        <button class="top-bar-btn" open-type="share">
           <text class="top-bar-text">分享</text>
         </button>
-
       </view>
 
       <!-- 游戏棋盘区域 -->
@@ -47,7 +46,6 @@
           </template>
         </Board>
 
-
         <!-- 游戏组件区域（游戏进行中） -->
         <view v-if="roomState.stage === 'started' && gameState" class="game-components">
           <!-- 游戏状态显示 -->
@@ -58,27 +56,14 @@
 
           <!-- 动态游戏面板 -->
           <!-- 游戏结束面板 -->
-          <GameResultDisplay
-            v-if="currentPanelType === 'result'"
-            :game="gameState"
-            :current-player-id="store.profile?.id || ''"
-            :selected-players="selectedPlayers"
-            @send-team="handleSendTeam"
-            @vote="handleVote"
-            @action="handleMissionAction"
-            @assassinate="handleAssassinate"
-          />
+          <GameResultDisplay v-if="currentPanelType === 'result'" :game="gameState" />
 
           <!-- 选择队伍面板 -->
           <TeamSelectionPanel
             v-else-if="currentPanelType === 'teamSelection'"
             :game="gameState"
-            :current-player-id="store.profile?.id || ''"
             :selected-players="selectedPlayers"
             @send-team="handleSendTeam"
-            @vote="handleVote"
-            @action="handleMissionAction"
-            @assassinate="handleAssassinate"
           />
 
           <!-- 投票面板 -->
@@ -86,11 +71,7 @@
             v-else-if="currentPanelType === 'voting'"
             :game="gameState"
             :current-player-id="store.profile?.id || ''"
-            :selected-players="selectedPlayers"
-            @send-team="handleSendTeam"
             @vote="handleVote"
-            @action="handleMissionAction"
-            @assassinate="handleAssassinate"
           />
 
           <!-- 任务执行面板 -->
@@ -98,23 +79,7 @@
             v-else-if="currentPanelType === 'missionAction'"
             :game="gameState"
             :current-player-id="store.profile?.id || ''"
-            :selected-players="selectedPlayers"
-            @send-team="handleSendTeam"
-            @vote="handleVote"
             @action="handleMissionAction"
-            @assassinate="handleAssassinate"
-          />
-
-          <!-- 刺杀面板 -->
-          <AssassinationPanel
-            v-else-if="currentPanelType === 'assassination'"
-            :game="gameState"
-            :current-player-id="store.profile?.id || ''"
-            :selected-players="selectedPlayers"
-            @send-team="handleSendTeam"
-            @vote="handleVote"
-            @action="handleMissionAction"
-            @assassinate="handleAssassinate"
           />
 
           <!-- 等待指示器 -->
@@ -122,7 +87,10 @@
         </view>
 
         <!-- 游戏配置（在等待阶段显示） -->
-        <view v-if="(roomState.stage === 'created' || roomState.stage === 'locked') && hasGameOptions" class="options-section">
+        <view
+          v-if="(roomState.stage === 'created' || roomState.stage === 'locked') && hasGameOptions"
+          class="options-section"
+        >
           <text class="section-title">游戏配置</text>
           <view class="options-grid">
             <text v-if="roomState.options.roles.merlin" class="option-badge">梅林</text>
@@ -134,7 +102,6 @@
             <text v-if="roomState.options.addons.excalibur" class="option-badge">圣剑</text>
           </view>
         </view>
-
       </view>
 
       <!-- 游戏设置弹窗 -->
@@ -168,7 +135,6 @@ import MissionBoard from '@/components/game/MissionBoard.vue';
 import TeamSelectionPanel from '@/components/game/TeamSelectionPanel.vue';
 import VotingPanel from '@/components/game/VotingPanel.vue';
 import MissionActionPanel from '@/components/game/MissionActionPanel.vue';
-import AssassinationPanel from '@/components/game/AssassinationPanel.vue';
 import GameResultDisplay from '@/components/game/GameResultDisplay.vue';
 import ActionWaitingIndicator from '@/components/game/ActionWaitingIndicator.vue';
 
@@ -221,8 +187,14 @@ const canSelectPlayer = computed(() => {
 
   // 游戏中的selectTeam阶段，领袖可以选择
   if (roomState.value?.stage === 'started' && gameState.value?.stage === 'selectTeam') {
-    const currentPlayer = gameState.value.players.find(p => p.id === store.profile?.id);
+    const currentPlayer = gameState.value.players.find((p) => p.id === store.profile?.id);
     return currentPlayer?.features.isLeader || false;
+  }
+
+  // 刺杀阶段，刺客可以选择玩家
+  if (roomState.value?.stage === 'started' && gameState.value?.stage === 'assassinate') {
+    const currentPlayer = gameState.value.players.find((p) => p.id === store.profile?.id);
+    return currentPlayer?.features.waitForAction || false;
   }
 
   return false;
@@ -233,7 +205,7 @@ const currentPanelType = computed(() => {
   if (!gameState.value || !store.profile) return null;
 
   const stage = gameState.value.stage;
-  const currentPlayer = gameState.value.players.find(p => p.id === store.profile?.id);
+  const currentPlayer = gameState.value.players.find((p) => p.id === store.profile?.id);
 
   // 游戏结束
   if (stage === 'end') {
@@ -261,14 +233,6 @@ const currentPanelType = computed(() => {
       // 只有在任务中的玩家才显示
       if (currentPlayer.features.isSent) {
         return 'missionAction';
-      }
-      return null;
-
-    case 'assassinate':
-      // 只显示给刺客
-      // 假设刺客角色的判断逻辑
-      if (currentPlayer.role === 'assassin' || (currentPlayer.loyalty === 'evil' && currentPlayer.features.waitForAction)) {
-        return 'assassination';
       }
       return null;
 
@@ -320,7 +284,7 @@ const handleGameUpdated = (game: any) => {
 const handleRestartGame = (uuid: string) => {
   // 重新进入房间
   uni.redirectTo({
-    url: `/pages/room?uuid=${uuid}`
+    url: `/pages/room?uuid=${uuid}`,
   });
 };
 
@@ -329,11 +293,11 @@ const handleDestroyRoom = (gameUUID: string) => {
     uni.showToast({
       title: '房间已关闭',
       icon: 'none',
-      duration: 2000
+      duration: 2000,
     });
     setTimeout(() => {
       uni.navigateTo({
-        url: '/pages/profile'
+        url: '/pages/profile',
       });
     }, 2000);
   }
@@ -377,7 +341,7 @@ const handleStartGame = () => {
       title: '人数不足',
       content: '游戏至少需要5名玩家才能开始',
       showCancel: false,
-      confirmText: '我知道了'
+      confirmText: '我知道了',
     });
     return;
   }
@@ -395,7 +359,7 @@ const handleBackToLobby = () => {
     socket.emit('leaveRoom', roomUuid.value);
   }
   uni.navigateTo({
-    url: '/pages/index'
+    url: '/pages/index',
   });
 };
 
@@ -408,7 +372,7 @@ const handleLeaveRoom = () => {
       if (res.confirm) {
         handleBackToLobby();
       }
-    }
+    },
   });
 };
 
@@ -418,7 +382,7 @@ const handlePlayerClick = (playerId: string) => {
 
   // 游戏中的选择队伍阶段
   if (roomState.value?.stage === 'started' && gameState.value?.stage === 'selectTeam') {
-    const currentPlayer = gameState.value.players.find(p => p.id === store.profile?.id);
+    const currentPlayer = gameState.value.players.find((p) => p.id === store.profile?.id);
 
     // 只有领袖可以选择
     if (currentPlayer?.features.isLeader) {
@@ -433,8 +397,49 @@ const handlePlayerClick = (playerId: string) => {
     return;
   }
 
+  // 刺杀阶段：点击玩家直接刺杀
+  if (roomState.value?.stage === 'started' && gameState.value?.stage === 'assassinate') {
+    const currentPlayer = gameState.value.players.find((p) => p.id === store.profile?.id);
+
+    // 只有刺客可以刺杀
+    if (currentPlayer?.features.waitForAction) {
+      // 不能刺杀自己
+      if (playerId === store.profile?.id) {
+        uni.showToast({
+          title: '不能选择自己',
+          icon: 'none',
+          duration: 1500,
+        });
+        return;
+      }
+
+      // 确认刺杀
+      const userState = store.users[playerId];
+      const targetName = userState && 'profile' in userState ? userState.profile.name : '该玩家';
+
+      uni.showModal({
+        title: '确认刺杀',
+        content: `确定要刺杀 ${targetName} 吗？`,
+        confirmColor: '#ff3b30',
+        success: (res) => {
+          if (res.confirm && roomUuid.value) {
+            // 先选择玩家，再执行刺杀
+            socket.emit('selectPlayer', roomUuid.value, playerId);
+            // 默认刺杀梅林
+            socket.emit('assassinate', roomUuid.value, 'merlin');
+          }
+        },
+      });
+    }
+    return;
+  }
+
   // 如果是房主且在等待阶段，显示踢人选项
-  if (isRoomLeader.value && roomState.value && (roomState.value.stage === 'created' || roomState.value.stage === 'locked')) {
+  if (
+    isRoomLeader.value &&
+    roomState.value &&
+    (roomState.value.stage === 'created' || roomState.value.stage === 'locked')
+  ) {
     // 不能踢自己
     if (playerId === store.profile?.id) {
       return;
@@ -442,7 +447,7 @@ const handlePlayerClick = (playerId: string) => {
 
     // 获取玩家名称
     const userState = store.users[playerId];
-    const playerName = (userState && 'profile' in userState) ? userState.profile.name : '该玩家';
+    const playerName = userState && 'profile' in userState ? userState.profile.name : '该玩家';
 
     uni.showActionSheet({
       itemList: [`踢出 ${playerName}`],
@@ -451,7 +456,7 @@ const handlePlayerClick = (playerId: string) => {
         if (res.tapIndex === 0) {
           handleKickPlayer(playerId);
         }
-      }
+      },
     });
   }
 };
@@ -468,40 +473,12 @@ const handleKickPlayer = (playerId: string) => {
         uni.showToast({
           title: '已踢出玩家',
           icon: 'success',
-          duration: 1500
+          duration: 1500,
         });
       }
-    }
+    },
   });
 };
-
-// 分享房间
-const handleShareRoom = () => {
-  // 小程序分享功能
-  const roomId = roomUuid.value;
-  const content = `房间ID: ${roomId}`;
-
-  // uni.showModal({
-  //   title: '分享房间',
-  //   content: content,
-  //   confirmText: '复制ID',
-  //   success: (res) => {
-  //     if (res.confirm) {
-  //       uni.setClipboardData({
-  //         data: roomId,
-  //         success: () => {
-  //           uni.showToast({
-  //             title: '房间ID已复制',
-  //             icon: 'success',
-  //             duration: 2000
-  //           });
-  //         }
-  //       });
-  //     }
-  //   }
-  // });
-};
-
 
 // 获取错误文本
 const getErrorText = (error: string): string => {
@@ -509,7 +486,7 @@ const getErrorText = (error: string): string => {
     room_not_found: '房间不存在',
     room_is_full: '房间已满',
     connection_failed: '连接失败',
-    not_authorized: '未授权'
+    not_authorized: '未授权',
   };
   return errorMap[error] || '未知错误';
 };
@@ -536,13 +513,6 @@ const handleMissionAction = (result: TMissionResult) => {
   if (!roomUuid.value) return;
 
   socket.emit('mission', roomUuid.value, result);
-};
-
-// 刺杀
-const handleAssassinate = (targetId: string) => {
-  if (!roomUuid.value) return;
-
-  socket.emit('assassinate', roomUuid.value, targetId);
 };
 </script>
 
@@ -590,7 +560,6 @@ const handleAssassinate = (targetId: string) => {
   padding: 0 32rpx;
   z-index: 1000;
   border-bottom: 1rpx solid rgba(0, 0, 0, 0.1);
-
 }
 
 .top-bar-btn {
@@ -667,7 +636,6 @@ const handleAssassinate = (targetId: string) => {
   padding: 8rpx 16rpx;
   border-radius: $radius-small;
 }
-
 
 .board-actions {
   display: flex;

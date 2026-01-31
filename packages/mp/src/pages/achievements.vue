@@ -41,6 +41,8 @@ import AchievementCard from '@/components/achievements/AchievementCard.vue';
 
 interface Achievement {
   id: string;
+  name: string;
+  description: string;
   requirement: number;
   metadata?: Record<string, unknown>;
 }
@@ -54,6 +56,8 @@ interface UserAchievement {
 
 interface AchievementData {
   id: string;
+  name: string;
+  description: string;
   completed: boolean;
   progress: {
     currentValue: number;
@@ -83,11 +87,16 @@ const fetchAchievements = async () => {
       const allAchievements = achievementsResponse.achievements || [];
       const userAchievements = userAchievementsResponse.userAchievements || [];
 
+      // 保存成就列表到 store，供全局使用（如 socket 事件）
+      store.setAchievements(allAchievements);
+
       achievements.value = allAchievements.map((achievement: Achievement) => {
         const userAchievement = userAchievements.find((ua: UserAchievement) => ua.achievementID === achievement.id);
 
         return {
           id: achievement.id,
+          name: achievement.name,
+          description: achievement.description,
           completed: userAchievement?.completed || false,
           progress: {
             currentValue: userAchievement?.currentProgress || 0,

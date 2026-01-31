@@ -67,15 +67,15 @@ const targetTypesText = computed(() => {
   const typeMap: Record<TAssassinateType, string> = {
     merlin: '梅林',
     lovers: '情侣',
-    tristan: '特里斯坦',
-    isolde: '伊索尔德'
+    guinevere: '女皇',
+    cleric: '牧师',
   };
-  return targetTypes.value.map(t => typeMap[t] || t).join(', ');
+  return targetTypes.value.map((t) => typeMap[t] || t).join(', ');
 });
 
 // 可以被刺杀的玩家（排除当前玩家）
 const assassinablePlayers = computed(() => {
-  return props.game.players.filter(p => p.id !== props.currentPlayerId);
+  return props.game.players.filter((p) => p.id !== props.currentPlayerId);
 });
 
 const selectTarget = (playerId: string) => {

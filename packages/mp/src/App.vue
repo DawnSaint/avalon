@@ -20,7 +20,7 @@ onLaunch(() => {
       console.error('Failed to load Overt font:', err);
       // 即使加载失败也允许显示（使用回退字体）
       store.setFontLoaded(true);
-    }
+    },
   });
 
   // 检查用户登录状态
@@ -50,12 +50,13 @@ onHide(() => {
 
 /* 全局样式 */
 uni-page {
-  background-color: #CFD8DC;
+  background-color: #cfd8dc;
   position: fixed;
   padding-top: 80rpx;
   box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
-    'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+    'Helvetica Neue', sans-serif;
 }
 
 /* 重置按钮样式 */
@@ -67,10 +68,5 @@ button {
 
 button::after {
   border: none;
-}
-
-/* 文本样式 */
-text {
-  font-size: $uni-font-size-lg;
 }
 </style>

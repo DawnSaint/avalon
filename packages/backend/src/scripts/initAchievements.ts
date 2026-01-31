@@ -1,69 +1,48 @@
-import mongoose from 'mongoose';
-import { config } from '@/config';
 import { achievementModel, achievementStatsModel } from '@/db/models';
 import { achievementsData } from '@/achievements/data';
 
 /**
- * 初始化成就数据到数据库
- * 此脚本会：
- * 1. 清除现有的成就数据
- * 2. 插入新的成就数据
- * 3. 初始化成就统计数据
+ * 初始化成就数据（服务启动时自动执行）
+ * 使用 upsert 模式：存在则更新，不存在则插入
  */
-async function initAchievements() {
+export async function initAchievementsOnStartup() {
   try {
-    // 连接数据库
-    const connectionParams = {
-      dbName: config.DB_NAME,
-      authSource: 'admin',
-    };
+    console.log('Initializing achievements...');
 
-    const prodSettings =
-      process.env.NODE_ENV === 'production'
-        ? ({
-            authMechanism: 'DEFAULT',
-            retryWrites: true,
-          } as const)
-        : {};
-
-    await mongoose.connect(config.MONGODB_URI, { ...connectionParams, ...prodSettings });
-    console.log(`MongoDB Connected [${config.DB_NAME}]`);
-
-    // 清除现有成就数据
-    console.log('Clearing existing achievements...');
-    await achievementModel.deleteMany({});
-    await achievementStatsModel.deleteMany({});
-
-    // 插入成就数据
-    console.log('Inserting achievements...');
-    await achievementModel.insertMany(achievementsData);
-    console.log(`Inserted ${achievementsData.length} achievements`);
-
-    // 初始化成就统计数据
-    console.log('Initializing achievement stats...');
-    const statsData = achievementsData.map((achievement) => ({
-      achievementID: achievement.id,
-      totalUnlocked: 0,
-      totalProgress: 0,
+    // 使用 bulkWrite 进行批量 upsert 操作
+    const achievementOps = achievementsData.map((achievement) => ({
+      updateOne: {
+        filter: { id: achievement.id },
+        update: { $set: achievement },
+        upsert: true,
+      },
     }));
-    await achievementStatsModel.insertMany(statsData);
-    console.log(`Initialized stats for ${statsData.length} achievements`);
 
-    // 列出所有成就
-    console.log('\nAchievements initialized:');
-    achievementsData.forEach((achievement, index) => {
-      console.log(`   ${index + 1}. ${achievement.id} - requirement: ${achievement.requirement}`);
-    });
+    const result = await achievementModel.bulkWrite(achievementOps);
+    console.log(`Achievements initialized: ${result.upsertedCount} inserted, ${result.modifiedCount} updated`);
 
-    console.log('\nAchievement initialization completed successfully!');
+    // 初始化成就统计数据（如果不存在）
+    const statsOps = achievementsData.map((achievement) => ({
+      updateOne: {
+        filter: { achievementID: achievement.id },
+        update: {
+          $setOnInsert: {
+            achievementID: achievement.id,
+            totalUsers: 0,
+            completedUsers: 0,
+            completionPercentage: 0,
+          },
+        },
+        upsert: true,
+      },
+    }));
+
+    const statsResult = await achievementStatsModel.bulkWrite(statsOps);
+    console.log(
+      `Achievement stats initialized: ${statsResult.upsertedCount} inserted, ${statsResult.modifiedCount} updated`,
+    );
   } catch (error) {
     console.error('Error initializing achievements:', error);
-    process.exit(1);
-  } finally {
-    await mongoose.disconnect();
-    console.log('MongoDB disconnected');
+    // 不要终止服务，只是记录错误
   }
 }
-
-// 运行初始化
-initAchievements();

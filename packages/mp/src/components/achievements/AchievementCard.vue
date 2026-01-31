@@ -70,6 +70,8 @@ import { useMainStore } from '@/store';
 interface Props {
   achievement: {
     id: string;
+    name: string;
+    description: string;
     completed: boolean;
     progress: {
       currentValue: number;
@@ -87,25 +89,6 @@ const props = defineProps<Props>();
 
 const store = useMainStore();
 
-// 成就配置数据
-const ACHIEVEMENTS_CONFIG: Record<string, { name: string; description: string }> = {
-  light_wins: { name: '除了恐惧本身，别无所惧！', description: '作为光明方获胜10次' },
-  dark_wins: { name: '黑暗的降临', description: '作为黑暗方获胜10次' },
-  all_standard_roles: { name: '全能高手', description: '使用所有标准角色获胜' },
-  different_player_count: { name: '人生是一连串的选择', description: '在5-10人游戏中获胜' },
-  assassin_kills: { name: '我看到死去的人。', description: '作为刺客成功刺杀梅林5次' },
-  secret_hunter: { name: '秘密猎人', description: '在网站上找到秘密' },
-  undercover_agent: { name: '卧底特工', description: '作为梅林选择莫甘娜参加任务2次后赢得游戏' },
-  useless_role: { name: '这角色有啥用', description: '作为牧师5次执行第一次任务' },
-  still_worthy: { name: '依然值得', description: '在第5次任务中使用圣剑并作为好人赢得游戏' },
-  detective: { name: '侦探', description: '作为梅林使用湖中仙女查验莫德雷德' },
-  mistakes_happen: { name: '失误难免', description: '在任务中所有坏人都按了失败' },
-  serial_killer: { name: '连环杀手', description: '至少各刺杀一次梅林、牧师和情侣' },
-  wrong_choice: { name: '错误的选择', description: '作为莫甘娜参加3次失败的任务' },
-  bodyguard: { name: '保镖', description: '作为派西维尔被刺客射击' },
-  seer: { name: '先知', description: '作为忠臣组建所有任务队伍都没有坏人' },
-};
-
 // 角色名称映射
 const ROLE_NAMES: Record<string, string> = {
   servant: '忠臣',
@@ -119,17 +102,11 @@ const ROLE_NAMES: Record<string, string> = {
 
 // 计算属性
 const achievementName = computed(() => {
-  const config = ACHIEVEMENTS_CONFIG[props.achievement.id];
-  if (!config) return props.achievement.id;
-
-  return config.name;
+  return props.achievement.name;
 });
 
 const achievementDescription = computed(() => {
-  const config = ACHIEVEMENTS_CONFIG[props.achievement.id];
-  if (!config) return '';
-
-  return config.description;
+  return props.achievement.description;
 });
 
 const shouldShowProgress = computed(() => {

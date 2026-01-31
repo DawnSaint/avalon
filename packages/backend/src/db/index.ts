@@ -90,8 +90,4 @@ export class DBManager extends UserLayer {
   async updateMPUserName(id: string, name: string) {
     return this.mpUserLayer.updateUserName(id, name);
   }
-
-  async updateMPUserAvatar(id: string, avatarID: string) {
-    return this.mpUserLayer.updateUserAvatar(id, avatarID);
-  }
 }

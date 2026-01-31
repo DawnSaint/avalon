@@ -99,10 +99,6 @@ export class UserLayer {
     await userProfileModel.findOneAndUpdate({ id }, { $set: { name } });
   }
 
-  async updateUserAvatar(userID: string, avatarID: string): Promise<void> {
-    await userProfileModel.findOneAndUpdate({ id: userID }, { $set: { avatar: avatarID } });
-  }
-
   async updateUserCredentials(
     id: string,
     password: string,

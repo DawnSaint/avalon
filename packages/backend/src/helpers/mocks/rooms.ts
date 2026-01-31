@@ -2,7 +2,7 @@ import type { TRoomsList } from '@avalon/types';
 
 export const fakeRooms: TRoomsList = [
   {
-    host: 'evie ',
+    hostID: 'mock-user-id-1',
     state: 'started',
     options: {
       addons: {},
@@ -28,7 +28,7 @@ export const fakeRooms: TRoomsList = [
     },
   },
   {
-    host: 'Dmitrii',
+    hostID: 'mock-user-id-2',
     state: 'started',
     options: {
       addons: {
@@ -56,7 +56,7 @@ export const fakeRooms: TRoomsList = [
     },
   },
   {
-    host: 'Dmitrii',
+    hostID: 'mock-user-id-3',
     state: 'started',
     options: {
       addons: {

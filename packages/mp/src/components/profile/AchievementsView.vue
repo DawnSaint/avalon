@@ -15,16 +15,11 @@
         <view class="summary-content">
           <view class="summary-progress">
             <view class="progress-bar">
-              <view
-                class="progress-fill"
-                :style="{ width: completionPercentage + '%' }"
-              ></view>
+              <view class="progress-fill" :style="{ width: completionPercentage + '%' }"></view>
             </view>
           </view>
           <view class="summary-stats">
-            <text class="stats-text">
-              已完成 {{ completedCount }} / {{ totalCount }} 个成就
-            </text>
+            <text class="stats-text"> 已完成 {{ completedCount }} / {{ totalCount }} 个成就 </text>
             <text class="stats-percentage">{{ completionPercentage }}%</text>
           </view>
         </view>
@@ -34,11 +29,7 @@
       <view class="achievement-section">
         <text class="section-title">公开成就</text>
         <view class="achievement-list">
-          <AchievementCard
-            v-for="achievement in openAchievements"
-            :key="achievement.id"
-            :achievement="achievement"
-          />
+          <AchievementCard v-for="achievement in openAchievements" :key="achievement.id" :achievement="achievement" />
         </view>
       </view>
 
@@ -66,6 +57,8 @@ import AchievementCard from '@/components/achievements/AchievementCard.vue';
 
 interface Achievement {
   id: string;
+  name: string;
+  description: string;
   type: 'open' | 'hidden';
   completed: boolean;
   progress: {
@@ -85,16 +78,16 @@ const achievements = ref<Achievement[]>([]);
 
 // 分类成就
 const openAchievements = computed(() => {
-  return achievements.value.filter(a => a.type === 'open');
+  return achievements.value.filter((a) => a.type === 'open');
 });
 
 const hiddenAchievements = computed(() => {
-  return achievements.value.filter(a => a.type === 'hidden');
+  return achievements.value.filter((a) => a.type === 'hidden');
 });
 
 // 统计数据
 const totalCount = computed(() => achievements.value.length);
-const completedCount = computed(() => achievements.value.filter(a => a.completed).length);
+const completedCount = computed(() => achievements.value.filter((a) => a.completed).length);
 const completionPercentage = computed(() => {
   if (totalCount.value === 0) return 0;
   return Math.round((completedCount.value / totalCount.value) * 100);
@@ -109,21 +102,29 @@ const fetchAchievements = async () => {
 
     const [achievementsResponse, userAchievementsResponse] = await Promise.all([
       socket.emitWithAck('getAllAchievements'),
-      socket.emitWithAck('getUserAchievements', store.profile.id)
+      socket.emitWithAck('getUserAchievements', store.profile.id),
     ]);
 
-    if (Array.isArray(achievementsResponse) && Array.isArray(userAchievementsResponse)) {
+    if (achievementsResponse?.success && userAchievementsResponse?.success) {
+      const allAchievements = achievementsResponse.achievements || [];
+      const userAchievements = userAchievementsResponse.userAchievements || [];
+
+      // 保存成就列表到 store
+      store.setAchievements(allAchievements);
+
       // 合并成就数据
-      achievements.value = achievementsResponse.map(achievement => {
-        const userAchievement = userAchievementsResponse.find(
-          (ua: any) => ua.id === achievement.id
-        );
+      achievements.value = allAchievements.map((achievement: any) => {
+        const userAchievement = userAchievements.find((ua: any) => ua.achievementID === achievement.id);
 
         return {
           ...achievement,
+          type: achievement.type || 'open',
           completed: userAchievement?.completed || false,
-          progress: userAchievement?.progress || { currentValue: 0, maxValue: 0 },
-          state: userAchievement?.state || {}
+          progress: {
+            currentValue: userAchievement?.currentProgress || 0,
+            maxValue: achievement.requirement,
+          },
+          state: userAchievement?.state || {},
         };
       });
     }
@@ -131,7 +132,7 @@ const fetchAchievements = async () => {
     console.error('Failed to fetch achievements:', error);
     uni.showToast({
       title: '获取成就失败',
-      icon: 'none'
+      icon: 'none',
     });
   } finally {
     loading.value = false;

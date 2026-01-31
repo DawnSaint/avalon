@@ -1,60 +1,57 @@
-// 阿瓦隆主题颜色 - 与原UI端完全统一
-// 基于 /packages/ui/src/plugins/vuetify/index.ts 的 lightTheme 配置
-
 // ========== 主题颜色 ==========
-$primary: #1976D2;           // 主色 - 蓝色
-$secondary: #424242;         // 次要色 - 深灰
-$accent: #82B1FF;            // 强调色 - 浅蓝
-$error: #C8000F;             // 错误 - 红色
-$info: #2196F3;              // 信息 - 蓝色
-$success: #4CAF50;           // 成功 - 绿色
-$warning: #fb8c00;           // 警告 - 橙色
+$primary: #1976d2; // 主色 - 蓝色
+$secondary: #424242; // 次要色 - 深灰
+$accent: #82b1ff; // 强调色 - 浅蓝
+$error: #c8000f; // 错误 - 红色
+$info: #2196f3; // 信息 - 蓝色
+$success: #4caf50; // 成功 - 绿色
+$warning: #fb8c00; // 警告 - 橙色
 
 // ========== 文本颜色 ==========
-$text-primary: #333333;      // 主文本
-$text-secondary: #666666;    // 次要文本
-$text-disabled: #999999;     // 禁用文本
-$text-white: #FFFFFF;        // 白色文本
+$text-primary: #333333; // 主文本
+$text-secondary: #666666; // 次要文本
+$text-disabled: #999999; // 禁用文本
+$text-white: #ffffff; // 白色文本
 
 // ========== 背景颜色 (Light Theme - 极简风格) ==========
-$bg-app: #CFD8DC;            // 应用主背景 (浅灰蓝)
-$bg-header: #D1D5DB;         // 头部背景
-$bg-page: #CFD8DC;           // 页面背景 - 与原UI统一
-$bg-card: transparent;       // 卡片背景 - 透明（极简风格）
-$inset: transparent;         // 按钮/内嵌元素背景 - 透明
-$inset-hover: rgba(0,0,0,0.05); // 内嵌元素悬停态 - 轻微变暗
-$bg-hover: rgba(0,0,0,0.05); // 通用悬停背景 - 轻微变暗
+$bg-app: #cfd8dc; // 应用主背景 (浅灰蓝)
+$bg-header: #d1d5db; // 头部背景
+$bg-page: #cfd8dc; // 页面背景 - 与原UI统一
+$bg-card: transparent; // 卡片背景 - 透明（极简风格）
+$inset: transparent; // 按钮/内嵌元素背景 - 透明
+$inset-hover: rgba(0, 0, 0, 0.05); // 内嵌元素悬停态 - 轻微变暗
+$bg-hover: rgba(0, 0, 0, 0.05); // 通用悬停背景 - 轻微变暗
 
 // ========== 阵营颜色 ==========
-$loyalty-good: #1976D2;      // 好人 - 蓝色
-$loyalty-good-bg: #E3F2FD;   // 好人背景色
-$loyalty-evil: #C8000F;      // 坏人 - 红色
-$loyalty-evil-bg: #FFEBEE;   // 坏人背景色
+$loyalty-good: #1976d2; // 好人 - 蓝色
+$loyalty-good-bg: #e3f2fd; // 好人背景色
+$loyalty-evil: #c8000f; // 坏人 - 红色
+$loyalty-evil-bg: #ffebee; // 坏人背景色
 
 // ========== 游戏棋盘颜色 ==========
 // 原UI使用背景图片，这里提供纯色fallback
-$board-bg: #262C36;          // 棋盘背景色（深灰）
+$board-bg: #262c36; // 棋盘背景色（深灰）
 $board-shadow: rgba(0, 0, 0, 0.1);
 
 // 游戏结束效果
-$game-end-good: #1976D2;     // 好人胜利 - 蓝色
-$game-end-evil: #C8000F;     // 坏人胜利 - 红色
+$game-end-good: #1976d2; // 好人胜利 - 蓝色
+$game-end-evil: #c8000f; // 坏人胜利 - 红色
 
 // ========== 玩家状态颜色 ==========
-$player-leader: #ffd700;     // 领袖 - 金色
-$player-selected: #4cd964;   // 选中 - 绿色
-$player-sent: #ff9500;       // 派遣 - 橙色
-$player-wait: #ff3b30;       // 等待操作 - 红色
+$player-leader: #ffd700; // 领袖 - 金色
+$player-selected: #4cd964; // 选中 - 绿色
+$player-sent: #ff9500; // 派遣 - 橙色
+$player-wait: #ff3b30; // 等待操作 - 红色
 
 // ========== UI 元素颜色 ==========
-$border-color: #e0e0e0;      // 边框
-$border-light: #f0f0f0;      // 浅边框
+$border-color: #e0e0e0; // 边框
+$border-light: #f0f0f0; // 浅边框
 $shadow-light: rgba(0, 0, 0, 0.05);
 $shadow-normal: rgba(0, 0, 0, 0.1);
 $shadow-heavy: rgba(0, 0, 0, 0.15);
 
 // ========== 按钮颜色 (极简纯文字样式) ==========
-$btn-primary: transparent;   // 主按钮透明背景
+$btn-primary: transparent; // 主按钮透明背景
 $btn-primary-text: $text-primary;
 $btn-secondary: transparent; // 次要按钮透明背景
 $btn-secondary-text: $text-secondary;
@@ -91,7 +88,7 @@ $transition-slow: 0.5s ease;
 
 // ========== 圆角 (与原UI的12px一致) ==========
 $radius-small: 8rpx;
-$radius-medium: 12rpx;       // 原UI主要使用12px
+$radius-medium: 12rpx; // 原UI主要使用12px
 $radius-large: 16rpx;
 $radius-xlarge: 24rpx;
 
